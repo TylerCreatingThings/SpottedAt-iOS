@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AD_UNIT_ID_FOR_BANNER_TEST</key>
+	<string>ca-app-pub-3940256099942544/2934735716</string>
+	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
+	<string>ca-app-pub-3940256099942544/4411468910</string>
+	<key>CLIENT_ID</key>
+	<string>973333915654-c149pss2a77blf1momj8q17jtj0svui5.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.973333915654-c149pss2a77blf1momj8q17jtj0svui5</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBsdoZUkoZoJS7XbqH3kuMbwWcGTZ3LjX4</string>
+	<key>GCM_SENDER_ID</key>
+	<string>973333915654</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>ca.wlu.spottedAt</string>
+	<key>PROJECT_ID</key>
+	<string>spottedat-c5512</string>
+	<key>STORAGE_BUCKET</key>
+	<string>spottedat-c5512.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<true></true>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false></false>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:973333915654:ios:d93cb66e1bf4d256</string>
+	<key>DATABASE_URL</key>
+	<string>https://spottedat-c5512.firebaseio.com</string>
+</dict>
+</plist>
