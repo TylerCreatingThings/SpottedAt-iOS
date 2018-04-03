@@ -29,12 +29,6 @@
                                     <constraint firstAttribute="width" constant="179" id="r0q-5w-zkc"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="???" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="10" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="k4s-Y1-73k">
-                                <rect key="frame" x="92" y="500" width="191" height="21"/>
-                                <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zP6-dr-wna">
                                 <rect key="frame" x="43" y="107" width="42" height="21"/>
                                 <constraints>
@@ -70,14 +64,11 @@
                             <constraint firstItem="zP6-dr-wna" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="43" id="H2J-Um-nxi"/>
                             <constraint firstItem="qtS-Uf-Jn0" firstAttribute="leading" secondItem="zxB-M5-aBi" secondAttribute="leading" id="MK1-SG-hR3"/>
                             <constraint firstItem="zxB-M5-aBi" firstAttribute="bottom" secondItem="qtS-Uf-Jn0" secondAttribute="bottom" id="QjL-r2-6nt"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="k4s-Y1-73k" secondAttribute="bottom" constant="102" id="SeQ-pa-GB2"/>
                             <constraint firstItem="zxB-M5-aBi" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Sh3-DC-CNr"/>
                             <constraint firstAttribute="trailingMargin" secondItem="Myh-Xy-1h5" secondAttribute="trailing" constant="38" id="UkM-ze-1UP"/>
                             <constraint firstItem="zP6-dr-wna" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="27" id="Wnn-My-JB7"/>
-                            <constraint firstItem="zxB-M5-aBi" firstAttribute="centerX" secondItem="k4s-Y1-73k" secondAttribute="centerX" id="iRH-iJ-qqk"/>
                             <constraint firstItem="zxB-M5-aBi" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="78" id="kfx-ZN-viz"/>
                             <constraint firstItem="TFq-J0-Cbd" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="128" id="o2C-wT-8F7"/>
-                            <constraint firstItem="k4s-Y1-73k" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="76" id="rNs-r1-2Xm"/>
                             <constraint firstItem="Myh-Xy-1h5" firstAttribute="top" secondItem="zxB-M5-aBi" secondAttribute="bottom" constant="22" id="tyc-e9-rmB"/>
                             <constraint firstItem="qtS-Uf-Jn0" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="72" id="zOL-1r-Ab6"/>
                         </constraints>
@@ -87,9 +78,7 @@
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="questionPicture" destination="zxB-M5-aBi" id="aio-1T-5S7"/>
-                        <outlet property="questionText" destination="k4s-Y1-73k" id="uXL-nx-KB7"/>
                         <outlet property="transitionPicture" destination="zxB-M5-aBi" id="vFe-5b-FF8"/>
-                        <outlet property="transitionQuestion" destination="k4s-Y1-73k" id="YTh-Pk-7Rt"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -171,7 +160,7 @@
                                 <rect key="frame" x="0.0" y="81" width="375" height="470"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LGa-dc-BVy">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Spotted @ Laurier" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LGa-dc-BVy">
                                 <rect key="frame" x="90" y="20" width="201" height="37"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -186,7 +175,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="Bru-fq-1C6"/>
                                     <barButtonItem title="List" id="821-zk-kvF">
                                         <connections>
-                                            <segue destination="rtL-34-f0U" kind="show" id="sTJ-Ww-jGM"/>
+                                            <segue destination="70J-Tt-zb4" kind="show" id="UBh-tv-xNQ"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>
@@ -206,7 +195,23 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tP9-f0-p7g" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1943.2" y="130.88455772113943"/>
+            <point key="canvasLocation" x="-2210" y="131"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="VCq-6L-jwb">
+            <objects>
+                <navigationController id="70J-Tt-zb4" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="aT4-ui-0I0">
+                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="rtL-34-f0U" kind="relationship" relationship="rootViewController" id="xD3-uJ-HcY"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ikA-iy-ZaC" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1402" y="131"/>
         </scene>
         <!--Add Event-->
         <scene sceneID="yFp-fk-hCD">
