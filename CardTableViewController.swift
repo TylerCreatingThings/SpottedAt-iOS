@@ -8,12 +8,14 @@
 
 import UIKit
 import FirebaseDatabase
+import Foundation
+import Darwin
+import MapKit
+import CoreLocation
 
-
-class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XMLParserDelegate  {
+class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XMLParserDelegate, CLLocationManagerDelegate  {
     var ref: DatabaseReference!
     var dataStore = NSData();
-    let urlPath: String = "http://rss.cbc.ca/lineup/topstories.xml"
     var currentElement = ""
     var currentLinkElement = ""
     var processingElement = false
@@ -21,11 +23,24 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     let ELEMENT_NAME = "description"
     let LINK_NAME = "link"
     var deck = Deck()
+    var schools = [University]()
+    var latitude:Double?
+    var longitude:Double?
+    let locationManager = CLLocationManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationItem.title = "CBC News Feed"
-        self.presentingViewController?.title = "CBC News Feed"
+        
+        self.locationManager.requestAlwaysAuthorization()
+        
+        // For use in foreground
+        self.locationManager.requestWhenInUseAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.startUpdatingLocation()
+        }
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         
@@ -54,6 +69,47 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
             print(error.localizedDescription)
         }
         
+        ref.child("UNIVERSITIES").observeSingleEvent(of: .value, with: { (snapshot) in
+            // Get user value
+            let value = snapshot.value as? NSDictionary
+            //var tests = value?.allValues[0] as? NSDictionary
+            //print("username is:",tests!["description"])
+            
+            for name in (value)!{
+                
+                print(name.key)
+                
+                var dictionary = name.value as? NSDictionary
+                var lat = (dictionary!["latitude"])!
+                var long = (dictionary!["longitude"])!
+                self.schools.append(University(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double))
+            }
+            
+            /*
+            Object value = dataSnapshot.getValue();
+            String innerValue = value.toString();
+            int location = innerValue.lastIndexOf("}");
+            String[] vals = value.toString().substring(innerValue.indexOf("uni-"), location).split("uni-");
+            //Hearst={latitude=49.7075, longitude=-83.66544},
+            for (String values : vals) {
+                if(!values.equals("")) {
+                    String name = values.substring(0, values.indexOf("="));
+                    String latitude = values.substring(values.indexOf("latitude=")+9, values.indexOf(","));
+                    String longitude = values.substring(values.indexOf("longitude=")+10, values.indexOf("}"));
+                    University uni = new University(name, Double.parseDouble(latitude), Double.parseDouble(longitude));
+                    mUniversityValues.add(uni);
+                }
+            }
+            */
+            
+            
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }) { (error) in
+            print(error.localizedDescription)
+        }
+        
     }
     
     func readDataBase(curElement: NSString, curLinkElement: NSString){
@@ -67,11 +123,6 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
                 SharingDeck.sharedDeck.setDeck(newDeck: deck)
                 self.tableView.reloadData()
             }
-        
-        
-        
-
-
         }
         
     
@@ -111,9 +162,86 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+        latitude = locValue.latitude
+        longitude = locValue.longitude
+    }
 
     // MARK: - Table view data source
+    /*        University selected = new University("Laurier",43.4724,-80.5263);
+     try {
+     for(University uni : mUniversityValues){
+     Log.d("main","Latuide is"+mLatitude+" "+mLongitude);
+     double distance = calculateDistance(mLatitude,mLongitude,uni.getLatitude(),uni.getLongitude());
+     if(min > distance){
+     min = distance;
+     selected = uni;
+     }
+     }
+     }
+     catch (NullPointerException e){
+     e.printStackTrace();
+     return null;
+     }
+     return selected.getName();*/
+    func getNeartestUniversity()->String{
+        
+        var selected:University?
+        var min:Double = Double.greatestFiniteMagnitude
+        for uni in self.schools {
+            let distance:Double = calculateDistance(lat1: self.latitude!, lon1: self.longitude!, lat2: uni.getLatitude(), lon2: uni.getLongitude())
+            if(min > distance){
+                min = distance
+                selected = uni
+            }
+            
+        }
+        return (selected?.getName())!
+        
+    }
 
+    func calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double)->Double{
+        let earthRadius:Double = 6371
+        let rLat1 = lat1 * .pi / 180
+        let rLat2 = lat2 * .pi / 180
+        let latDiff = (lat2-lat1) * .pi / 180
+        let longDiff = (lon2-lon1) * .pi / 180
+        let a = sin(latDiff/2) * sin(latDiff/2) + cos(rLat1) + cos(rLat2) + sin(longDiff/2) * sin(longDiff/2)
+        let c = 2 * atan2(sqrt(a),sqrt(1-a))
+        let distance = earthRadius * c
+        return distance
+    }
+    
+    /* public void getNearbySpots(){
+     int min = 10;
+     Log.d("WSM","GetNearbySpots"+Integer.toString(mSpots.size()));
+     
+     try {
+     for(Card curCard : mSpots){
+     if((abs(mLatitude-curCard.getLatitude()))<TEN_KILOMETERS || (abs(mLongitude-curCard.getLongitude()))<TEN_KILOMETERS) {
+     double distance = calculateDistance(mLatitude, mLongitude, curCard.getLatitude(), curCard.getLongitude());
+     if (min > distance) {
+     Log.d("WSM","Got nearby spots");
+     mNearbySpots.add(curCard);
+     }
+     }
+     }
+     }
+     catch (NullPointerException e){
+     e.printStackTrace();
+     }
+     if(mMap!=null) {
+     placeMarkers();
+     }
+     }
+*/
+    func getNearbySpots(){
+        var min = UInt16.max
+        
+    }
+    
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 1

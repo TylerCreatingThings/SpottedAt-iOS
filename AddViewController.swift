@@ -8,15 +8,31 @@
 
 import UIKit
 import os.log
+import MapKit
+import CoreLocation
 
 
-
-class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINavigationControllerDelegate, UITextFieldDelegate {
+class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINavigationControllerDelegate, UITextFieldDelegate, CLLocationManagerDelegate {
     
+    let locationManager = CLLocationManager()
     let picker = UIImagePickerController()
+    var latitude:Double?
+    var longitude:Double?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Ask for Authorisation from the User.
+        self.locationManager.requestAlwaysAuthorization()
+        
+        // For use in foreground
+        self.locationManager.requestWhenInUseAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.startUpdatingLocation()
+        }
+        
         picker.delegate = self
         
         //take delegates of textfields
@@ -29,6 +45,13 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+        latitude = locValue.latitude
+        longitude = locValue.longitude
+    }
+    
     @IBOutlet weak var addTitleText: UITextField!
     @IBOutlet weak var addDescriptionText: UITextField!
     
@@ -38,6 +61,11 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
         return true
     }
     
+    @IBAction func uploadPicture(_ sender: Any) {
+        //get curr location
+        //
+        
+    }
     
     @IBOutlet weak var addImageView: UIButton!
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
