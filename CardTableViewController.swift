@@ -186,9 +186,6 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         super.prepare(for: segue, sender: sender)
         
         switch(segue.identifier ?? "") {
-        case "AddItem":
-            os_log("Adding a new card.", log: OSLog.default, type: .debug)
-            
         case "ShowDetail":
             guard let CardViewController = segue.destination as? CardViewController else {
                 fatalError("Unexpected destination: \(segue.destination)")
@@ -207,6 +204,10 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         
         case "mapShow":
             guard let mapViewController = segue.destination as? MapsViewController else {
+                fatalError("Unexpected destination: \(segue.destination)")
+            }
+        case "addSpot":
+            guard let addViewController = segue.destination as? AddViewController else {
                 fatalError("Unexpected destination: \(segue.destination)")
             }
             
