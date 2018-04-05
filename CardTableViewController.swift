@@ -204,6 +204,12 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
             let selectedCard = deck.getElementAtIndex(index: indexPath.row)
             CardViewController.card = selectedCard
             print("Here again too")
+        
+        case "mapShow":
+            guard let mapViewController = segue.destination as? MapsViewController else {
+                fatalError("Unexpected destination: \(segue.destination)")
+            }
+            
         default:
             fatalError("Unexpected Segue Identifier; \(String(describing: segue.identifier))")
             

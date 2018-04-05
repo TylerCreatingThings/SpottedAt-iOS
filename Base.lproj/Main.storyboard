@@ -128,6 +128,11 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Events" id="TZ4-b4-YBm">
+                        <barButtonItem key="leftBarButtonItem" title="Map" id="26I-fU-rKf">
+                            <connections>
+                                <segue destination="mJq-1f-KZk" kind="presentation" identifier="mapShow" id="cN5-wG-6Yw"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" style="plain" id="AeV-XY-ayb">
                             <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="nCr-2Y-Df1">
                                 <rect key="frame" x="276" y="7" width="83" height="30"/>
@@ -144,6 +149,19 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="exI-9k-B2Q" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-548" y="130.88455772113943"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="ef5-0h-bmE">
+            <objects>
+                <navigationController id="yVT-qP-gWC" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="nez-pO-X0z">
+                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="65C-pk-xec" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3929" y="125"/>
         </scene>
         <!--Maps View Controller-->
         <scene sceneID="7ON-lT-gzr">
