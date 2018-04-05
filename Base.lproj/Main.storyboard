@@ -13,7 +13,7 @@
         <!--Event Detail-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController title="Event Detail" id="BYZ-38-t0r" customClass="DetailViewController" customModule="farkkhan_spottedat" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Event Detail" id="BYZ-38-t0r" customClass="CardViewController" customModule="farkkhan_spottedat" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -77,8 +77,8 @@
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
-                        <outlet property="questionPicture" destination="zxB-M5-aBi" id="aio-1T-5S7"/>
-                        <outlet property="transitionPicture" destination="zxB-M5-aBi" id="vFe-5b-FF8"/>
+                        <outlet property="spotDescription" destination="Myh-Xy-1h5" id="Cst-yf-XTZ"/>
+                        <outlet property="spotImage" destination="zxB-M5-aBi" id="qAZ-SU-lj0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -118,7 +118,7 @@
                                 <connections>
                                     <outlet property="nameLabel" destination="KOb-pl-VEV" id="3hZ-9B-DjD"/>
                                     <outlet property="photoImageView" destination="9Ge-Wq-mFH" id="pHj-kC-qUf"/>
-                                    <segue destination="BYZ-38-t0r" kind="show" identifier="CardDetailView" id="dnH-mA-yhp"/>
+                                    <segue destination="BYZ-38-t0r" kind="show" identifier="ShowDetail" id="dnH-mA-yhp"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>

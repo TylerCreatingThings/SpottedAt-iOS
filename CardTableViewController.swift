@@ -8,6 +8,8 @@
 
 import UIKit
 import FirebaseDatabase
+import FirebaseStorage
+import os.log
 
 
 class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XMLParserDelegate  {
@@ -21,6 +23,8 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     let ELEMENT_NAME = "description"
     let LINK_NAME = "link"
     var deck = Deck()
+    let storage = Storage.storage()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,55 +46,76 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
             for name in (value?.allValues)!{
                 var dictionary = name as? NSDictionary
                 var name = (dictionary!["title"])!
+                var imageName = (dictionary!["image"])! as! String
+                var description = (dictionary!["description"])! as! String
+                if(description == ""){
+                    description = " "
+                }
+                let pathReference = self.storage.reference(withPath: imageName)
                 
-                print("Value is: ", (dictionary!["description"])!)
-                self.deck.addCard(newQuestion: name as! String, newAnswer: "test", newImage: currentImage!, newUrl: "test")
+                pathReference.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                    if let error = error {
+                        // Uh-oh, an error occurred!
+                        print("We got an error Faham")
+
+                    } else {
+                        // Data for "images/island.jpg" is returned
+                        currentImage = UIImage(data: data!)
+                        print("description: ", description)
+                        self.deck.addCard(newQuestion: name as! String, newAnswer: description, newImage: currentImage!, newUrl: "test")
+                        DispatchQueue.main.async {
+                            self.tableView.reloadData()
+                        }
+                    }
+                }
+                
+                //print("Value is: ", (dictionary!["description"])!)
+                
             }
             
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
+            
         }) { (error) in
             print(error.localizedDescription)
         }
         
     }
     
-    func readDataBase(curElement: NSString, curLinkElement: NSString){
-            //let imageQueue = DispatchQueue(label: "Image Queue", attributes: .concurrent)
         
-            DispatchQueue.main.async {
-                // get image from the Web
-                //image = UIImage(data: imageData! as Data)
-                let deck:Deck = SharingDeck.sharedDeck.getDeck()!
-                //deck.addCard(newQuestion: theTitle! as String , newAnswer: theDescription! as String, newImage: image!, newUrl: theLink! as String)
-                SharingDeck.sharedDeck.setDeck(newDeck: deck)
-                self.tableView.reloadData()
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        super.prepare(for: segue, sender: sender)
+        
+        switch(segue.identifier ?? "") {
+        case "AddItem":
+            os_log("Adding a new card.", log: OSLog.default, type: .debug)
+            
+        case "ShowDetail":
+            guard let CardViewController = segue.destination as? CardViewController else {
+                fatalError("Unexpected destination: \(segue.destination)")
             }
-        
-        
-        
-
-
+            
+            guard let selectedCardCell = sender as? CardTableViewCell else {
+                fatalError("Unexpected sender: \(String(describing: sender))")
+            }
+            
+            guard let indexPath = tableView.indexPath(for: selectedCardCell) else {
+                fatalError("The selected cell is not being displayed by the table")
+            }
+            let selectedCard = deck.getElementAtIndex(index: indexPath.row)
+            CardViewController.card = selectedCard
+            print("Here again too")
+        default:
+            fatalError("Unexpected Segue Identifier; \(String(describing: segue.identifier))")
+            
         }
         
-    
-    
-    
-
-    
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    if segue.identifier == "CardDetailView" {
-    //get the index of the row selected in the table
-        let indexPath = tableView.indexPath(for: sender as! UITableViewCell)!;
-    //segue to the details screen
-        let detailVC = segue.destination as! DetailViewController;
-    //set the selected rss item in the details view
-        detailVC.initWithData(data: indexPath.row)
-        }
-    
+        
     }
+    
+    
+
+    
+
     
     
     @IBAction func unwindToDeckList( sender: UIStoryboardSegue) {
