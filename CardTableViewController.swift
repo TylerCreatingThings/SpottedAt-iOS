@@ -1,4 +1,3 @@
-
 //
 //  CardTableViewController.swift
 //  fark3230_a4
@@ -6,16 +5,23 @@
 //  Created by Tyler Farkas on 2018-03-05.
 //  Copyright © 2018 Tyler Farkas. All rights reserved.
 //
+
 import UIKit
 import FirebaseDatabase
-import Foundation
+import FirebaseStorage
+import os.log
 import Darwin
 import MapKit
+import Foundation
+
 import CoreLocation
 
+
 class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XMLParserDelegate, CLLocationManagerDelegate  {
+    
     var ref: DatabaseReference!
     var dataStore = NSData();
+    let urlPath: String = "http://rss.cbc.ca/lineup/topstories.xml"
     var currentElement = ""
     var currentLinkElement = ""
     var processingElement = false
@@ -23,13 +29,17 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     let ELEMENT_NAME = "description"
     let LINK_NAME = "link"
     var deck = Deck()
+    let storage = Storage.storage()
     var schools = [University]()
     var latitude:Double?
     var longitude:Double?
     let locationManager = CLLocationManager()
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationItem.title = "Spots"
+        self.presentingViewController?.title = "Spots"
         
         self.locationManager.requestAlwaysAuthorization()
         
@@ -57,13 +67,31 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
             for name in (value?.allValues)!{
                 var dictionary = name as? NSDictionary
                 var name = (dictionary!["title"])!
+                var imageName = (dictionary!["image"])! as! String
+                var description = (dictionary!["description"])! as! String
+                if(description == ""){
+                    description = " "
+                }
+                let pathReference = self.storage.reference(withPath: imageName)
                 
-                print("Value is: ", (dictionary!["description"])!)
-                self.deck.addCard(newQuestion: name as! String, newAnswer: "test", newImage: currentImage!, newUrl: "test")
-            }
-            
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
+                pathReference.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                    if let error = error {
+                        // Uh-oh, an error occurred!
+                        print("We got an error Faham")
+                        
+                    } else {
+                        // Data for "images/island.jpg" is returned
+                        currentImage = UIImage(data: data!)
+                        print("description: ", description)
+                        self.deck.addCard(newQuestion: name as! String, newAnswer: description, newImage: currentImage!, newUrl: "test")
+                        DispatchQueue.main.async {
+                            self.tableView.reloadData()
+                        }
+                    }
+                }
+                
+                //print("Value is: ", (dictionary!["description"])!)
+                
             }
         }) { (error) in
             print(error.localizedDescription)
@@ -112,36 +140,82 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         
     }
     
-    func readDataBase(curElement: NSString, curLinkElement: NSString){
-        //let imageQueue = DispatchQueue(label: "Image Queue", attributes: .concurrent)
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+        latitude = locValue.latitude
+        longitude = locValue.longitude
+    }
+    
+    func getNeartestUniversity()->String{
         
-        DispatchQueue.main.async {
-            // get image from the Web
-            //image = UIImage(data: imageData! as Data)
-            let deck:Deck = SharingDeck.sharedDeck.getDeck()!
-            //deck.addCard(newQuestion: theTitle! as String , newAnswer: theDescription! as String, newImage: image!, newUrl: theLink! as String)
-            SharingDeck.sharedDeck.setDeck(newDeck: deck)
-            self.tableView.reloadData()
+        var selected:University?
+        var min:Double = Double.greatestFiniteMagnitude
+        for uni in self.schools {
+            let distance:Double = calculateDistance(lat1: self.latitude!, lon1: self.longitude!, lat2: uni.getLatitude(), lon2: uni.getLongitude())
+            if(min > distance){
+                min = distance
+                selected = uni
+            }
+            
         }
+        return (selected?.getName())!
+        
+    }
+    
+    
+    func calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double)->Double{
+        let earthRadius:Double = 6371
+        let rLat1 = lat1 * .pi / 180
+        let rLat2 = lat2 * .pi / 180
+        let latDiff = (lat2-lat1) * .pi / 180
+        let longDiff = (lon2-lon1) * .pi / 180
+        let a = sin(latDiff/2) * sin(latDiff/2) + cos(rLat1) + cos(rLat2) + sin(longDiff/2) * sin(longDiff/2)
+        let c = 2 * atan2(sqrt(a),sqrt(1-a))
+        let distance = earthRadius * c
+        return distance
+    }
+    
+    func getNearbySpots(){
+        var min = UInt16.max
+        
+    }
+    
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        super.prepare(for: segue, sender: sender)
+        
+        switch(segue.identifier ?? "") {
+        case "AddItem":
+            os_log("Adding a new card.", log: OSLog.default, type: .debug)
+            
+        case "ShowDetail":
+            guard let CardViewController = segue.destination as? CardViewController else {
+                fatalError("Unexpected destination: \(segue.destination)")
+            }
+            
+            guard let selectedCardCell = sender as? CardTableViewCell else {
+                fatalError("Unexpected sender: \(String(describing: sender))")
+            }
+            
+            guard let indexPath = tableView.indexPath(for: selectedCardCell) else {
+                fatalError("The selected cell is not being displayed by the table")
+            }
+            let selectedCard = deck.getElementAtIndex(index: indexPath.row)
+            CardViewController.card = selectedCard
+            print("Here again too")
+        default:
+            fatalError("Unexpected Segue Identifier; \(String(describing: segue.identifier))")
+            
+        }
+        
+        
     }
     
     
     
     
     
-    
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "CardDetailView" {
-            //get the index of the row selected in the table
-            let indexPath = tableView.indexPath(for: sender as! UITableViewCell)!;
-            //segue to the details screen
-            let detailVC = segue.destination as! DetailViewController;
-            //set the selected rss item in the details view
-            detailVC.initWithData(data: indexPath.row)
-        }
-        
-    }
     
     
     @IBAction func unwindToDeckList( sender: UIStoryboardSegue) {
@@ -163,84 +237,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         // Dispose of any resources that can be recreated.
     }
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-        latitude = locValue.latitude
-        longitude = locValue.longitude
-    }
-    
     // MARK: - Table view data source
-    /*        University selected = new University("Laurier",43.4724,-80.5263);
-     try {
-     for(University uni : mUniversityValues){
-     Log.d("main","Latuide is"+mLatitude+" "+mLongitude);
-     double distance = calculateDistance(mLatitude,mLongitude,uni.getLatitude(),uni.getLongitude());
-     if(min > distance){
-     min = distance;
-     selected = uni;
-     }
-     }
-     }
-     catch (NullPointerException e){
-     e.printStackTrace();
-     return null;
-     }
-     return selected.getName();*/
-    func getNeartestUniversity()->String{
-        
-        var selected:University?
-        var min:Double = Double.greatestFiniteMagnitude
-        for uni in self.schools {
-            let distance:Double = calculateDistance(lat1: self.latitude!, lon1: self.longitude!, lat2: uni.getLatitude(), lon2: uni.getLongitude())
-            if(min > distance){
-                min = distance
-                selected = uni
-            }
-            
-        }
-        return (selected?.getName())!
-        
-    }
-    
-    func calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double)->Double{
-        let earthRadius:Double = 6371
-        let rLat1 = lat1 * .pi / 180
-        let rLat2 = lat2 * .pi / 180
-        let latDiff = (lat2-lat1) * .pi / 180
-        let longDiff = (lon2-lon1) * .pi / 180
-        let a = sin(latDiff/2) * sin(latDiff/2) + cos(rLat1) + cos(rLat2) + sin(longDiff/2) * sin(longDiff/2)
-        let c = 2 * atan2(sqrt(a),sqrt(1-a))
-        let distance = earthRadius * c
-        return distance
-    }
-    
-    /* public void getNearbySpots(){
-     int min = 10;
-     Log.d("WSM","GetNearbySpots"+Integer.toString(mSpots.size()));
-     
-     try {
-     for(Card curCard : mSpots){
-     if((abs(mLatitude-curCard.getLatitude()))<TEN_KILOMETERS || (abs(mLongitude-curCard.getLongitude()))<TEN_KILOMETERS) {
-     double distance = calculateDistance(mLatitude, mLongitude, curCard.getLatitude(), curCard.getLongitude());
-     if (min > distance) {
-     Log.d("WSM","Got nearby spots");
-     mNearbySpots.add(curCard);
-     }
-     }
-     }
-     }
-     catch (NullPointerException e){
-     e.printStackTrace();
-     }
-     if(mMap!=null) {
-     placeMarkers();
-     }
-     }
-     */
-    func getNearbySpots(){
-        var min = UInt16.max
-        
-    }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
@@ -270,6 +267,8 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         
         return cell
     }
+    
+    
     
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
