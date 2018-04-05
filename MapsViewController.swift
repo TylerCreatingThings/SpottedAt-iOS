@@ -12,13 +12,18 @@ import GoogleMaps
 
 class MapsViewController: UIViewController {
 
+    var schools = [University]()
+    var spots = [Card]()
+    var nearbySpots = [Card]()
+    var markers = [GMSMarker]()
+    
     var mapView:GMSMapView?
     @IBOutlet var mapsViewObject: GMSMapView!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        //schools.append(University)
         let camera = GMSCameraPosition.camera(withLatitude: -33.86, longitude: 151.20, zoom: 6.0)
         mapsViewObject.camera = camera
         
