@@ -70,8 +70,8 @@ class Deck: NSObject, NSCoding{
         return currentCard!
     }
     
-    func addCard(newQuestion: String, newAnswer: String, newImage: UIImage, newUrl: String){
-        let newCard = Card(image:newImage,question:newQuestion,answer: newAnswer, url: newUrl)
+    func addCard(newQuestion: String, newAnswer: String, newImage: UIImage, newUrl: String, latitude: Double, longitude: Double){
+        let newCard = Card(image:newImage,question:newQuestion,answer: newAnswer, url: newUrl, latitude: latitude,longitude: longitude )
         cards.append(newCard!)
         maxCount+=1
     }
