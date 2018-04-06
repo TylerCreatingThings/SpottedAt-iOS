@@ -17,6 +17,7 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet weak var spotDescription: UILabel!
     @IBOutlet weak var addComment: UIButton!
     @IBOutlet weak var commentsTableView: UITableView!
+    @IBOutlet weak var spotTitle: UILabel!
     var commentArray = [String]()
     
     var card : Card?
@@ -28,7 +29,7 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
         super.viewDidLoad()
         print("we got the card")
         if let card = card {
-            navigationItem.title = card.getQuestion()
+            spotTitle.text = card.getQuestion()
             spotDescription.text   = card.getAnswer()
             spotImage.image = card.getImage()
             
