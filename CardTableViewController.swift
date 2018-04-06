@@ -35,7 +35,6 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     var longitude:Double?
     let locationManager = CLLocationManager()
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.title = "Spots"
@@ -271,7 +270,19 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         
         cell.nameLabel.text = card.getQuestion()
         cell.photoImageView.image = card.getImage()
+        cell.descriptionLabel.text = card.getAnswer()
         
+        cell.mainBackground.layer.shadowColor = UIColor.gray.cgColor
+        cell.mainBackground.layer.shadowColor = UIColor.gray.cgColor
+        
+        cell.mainBackground.layer.shadowOffset = CGSize(width: 0, height: 1)
+        cell.mainBackground.layer.shadowRadius = 4.0
+        cell.mainBackground.layer.shadowOpacity = 1.0
+        cell.mainBackground.layer.masksToBounds = false
+        cell.mainBackground.layer.cornerRadius = 8
+        
+        cell.mainBackground.layer.shadowPath = UIBezierPath(roundedRect: cell.mainBackground.bounds, byRoundingCorners: .allCorners, cornerRadii: CGSize(width: 8, height: 8)).cgPath
+
         return cell
     }
     

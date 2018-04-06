@@ -19,6 +19,9 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
     var latitude:Double?
     var longitude:Double?
     
+    @IBOutlet weak var imageView: UIImageView!
+    var imagePicker: UIImagePickerController!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Ask for Authorisation from the User.
@@ -67,23 +70,21 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
         
     }
     
-    @IBOutlet weak var addImageView: UIButton!
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        var newImage: UIImage
+    @IBAction func takePhoto(_ sender: UIButton) {
+        imagePicker =  UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .camera
         
-        if let possibleImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
-            newImage = possibleImage
-        } else if let possibleImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
-            newImage = possibleImage
-        } else {
-            return
-        }
-        
-        // do something interesting here!
-        addImageView.setImage(newImage, for:  .normal)
-        addImageView.sizeToFit()
-        dismiss(animated: true)
+        present(imagePicker, animated: true, completion: nil)
     }
+    
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        imagePicker.dismiss(animated: true, completion: nil)
+        imageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
+    }
+    
+    
+    
     
     @IBAction func pickUserImage(_ sender: Any) {
         
