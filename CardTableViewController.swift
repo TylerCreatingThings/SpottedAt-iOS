@@ -71,7 +71,8 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
                 var dictionary = name as? NSDictionary
                 var name = (dictionary!["title"])!
                 var imageName = (dictionary!["image"])! as! String
-                
+                var longitude=(dictionary!["longitude"])! as! Double
+                var latitude = (dictionary!["latitude"])! as! Double
                 var id = (value?.allKeys[counter])! as! String
                 
                 var description = (dictionary!["description"])! as! String
@@ -89,7 +90,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
                         // Data for "images/island.jpg" is returned
                         currentImage = UIImage(data: data!)
                         print("description: ", description)
-                        self.deck.addCard(newQuestion: name as! String, newAnswer: description, newImage: currentImage!, newUrl: id)
+                        self.deck.addCard(newQuestion: name as! String, newAnswer: description, newImage: currentImage!, newUrl: id, latitude: latitude, longitude: longitude)
                         DispatchQueue.main.async {
                             self.tableView.reloadData()
                         }

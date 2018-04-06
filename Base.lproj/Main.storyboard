@@ -58,19 +58,19 @@
                                 <rect key="frame" x="98" y="136" width="191" height="134"/>
                                 <state key="normal" title="WebView"/>
                             </button>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="5UF-1z-WdF">
-                                <rect key="frame" x="16" y="359" width="343" height="256"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="singleLineEtched" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="5UF-1z-WdF">
+                                <rect key="frame" x="0.0" y="359" width="375" height="308"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="cell" id="W4L-o3-nap" customClass="CommentsTableViewCell" customModule="farkkhan_spottedat" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="343" height="44"/>
+                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="W4L-o3-nap" id="yXB-F2-bKm">
-                                            <rect key="frame" x="0.0" y="0.0" width="343" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xdG-bG-vCR">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xdG-bG-vCR">
                                                     <rect key="frame" x="15" y="11" width="313" height="21"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -95,16 +95,16 @@
                             <constraint firstItem="TFq-J0-Cbd" firstAttribute="top" secondItem="Myh-Xy-1h5" secondAttribute="bottom" constant="8" symbolic="YES" id="4XC-GX-wFa"/>
                             <constraint firstAttribute="trailingMargin" secondItem="qtS-Uf-Jn0" secondAttribute="trailing" constant="70" id="5tQ-xB-M2p"/>
                             <constraint firstItem="zP6-dr-wna" firstAttribute="leading" secondItem="Myh-Xy-1h5" secondAttribute="leading" id="8r0-0P-b5I"/>
-                            <constraint firstItem="zP6-dr-wna" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="43" id="H2J-Um-nxi"/>
+                            <constraint firstItem="zxB-M5-aBi" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="78" id="BtZ-Gv-rau"/>
                             <constraint firstItem="qtS-Uf-Jn0" firstAttribute="leading" secondItem="zxB-M5-aBi" secondAttribute="leading" id="MK1-SG-hR3"/>
+                            <constraint firstItem="qtS-Uf-Jn0" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="72" id="O14-zz-liN"/>
                             <constraint firstItem="zxB-M5-aBi" firstAttribute="bottom" secondItem="qtS-Uf-Jn0" secondAttribute="bottom" id="QjL-r2-6nt"/>
                             <constraint firstItem="zxB-M5-aBi" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Sh3-DC-CNr"/>
+                            <constraint firstItem="zP6-dr-wna" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="43" id="TqA-do-tJI"/>
                             <constraint firstAttribute="trailingMargin" secondItem="Myh-Xy-1h5" secondAttribute="trailing" constant="38" id="UkM-ze-1UP"/>
                             <constraint firstItem="zP6-dr-wna" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="27" id="Wnn-My-JB7"/>
-                            <constraint firstItem="zxB-M5-aBi" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="78" id="kfx-ZN-viz"/>
                             <constraint firstItem="TFq-J0-Cbd" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="43" id="o2C-wT-8F7"/>
                             <constraint firstItem="Myh-Xy-1h5" firstAttribute="top" secondItem="zxB-M5-aBi" secondAttribute="bottom" constant="22" id="tyc-e9-rmB"/>
-                            <constraint firstItem="qtS-Uf-Jn0" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="72" id="zOL-1r-Ab6"/>
                         </constraints>
                     </view>
                     <toolbarItems/>

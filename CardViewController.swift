@@ -33,37 +33,38 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
             spotImage.image = card.getImage()
             
         }
-        ref = Database.database().reference()
-
         var cardID = (card?.getUrl())!
+        ref = Database.database().reference().child("COMMENTS").child(cardID)
+
         
         if cardID != nil {
            
-        self.ref.child("COMMENTS").child(cardID).observeSingleEvent(of: .value, with: { (snapshot) in
-            // Get user value
-            let value = snapshot.value as? NSDictionary
-            for comments in (value?.allValues)!{
-                print("The value of each is:",comments)
-                var comment = comments as! String
-                if comment != "Empty post here #12424"{
-                    self.labelView = self.labelView + "\n" + comment
-                    self.commentArray.append(comment)
-                    print("Yes we are getting here")
-                    print(self.commentArray.count)
-                    DispatchQueue.main.async {
-                        self.commentsTableView.reloadData()
+            self.ref.queryOrderedByKey().observe(DataEventType.value, with: { (snapshot) in
+                // Get user value
+                self.commentArray.removeAll()
+                let value = snapshot.value as? NSDictionary
+                for comments in (value?.allValues)!{
+                    print("The value of each is:",comments)
+                    var comment = comments as! String
+                    if comment != "Empty post here #12424"{
+                        self.labelView = self.labelView + "\n" + comment
+                        self.commentArray.append(comment)
+                        print("Yes we are getting here")
+                        print(self.commentArray.count)
+                        DispatchQueue.main.async {
+                            self.commentsTableView.reloadData()
+                        }
+                        
+                        
                     }
-                    
-                    
                 }
-            }
-            //print(self.labelView)
-            //self.commentsLabel.text = self.commentsLabel.text! + self.labelView
+                //print(self.labelView)
+                //self.commentsLabel.text = self.commentsLabel.text! + self.labelView
 
-            
-        }) { (error) in
-            print("Errrr is: ",error.localizedDescription)
-        }
+                
+            }) { (error) in
+                print("Errrr is: ",error.localizedDescription)
+            }
          
         }
 
@@ -109,13 +110,18 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
         // 3. Grab the value from the text field, and print it when the user clicks OK.
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (_) in
             let textField = (alert?.textFields![0])?.text// Force unwrapping because we know it exists.
-            
+            let currentDateTime = Date()
+            var date = round(Date().timeIntervalSinceReferenceDate)
+            var dateString = String(date)
             self.ref = Database.database().reference()
-            let commentID = ("-L-" + (self.randomStringWithLength() as String))
+            dateString = dateString.replacingOccurrences(of: ".", with: "", options: NSString.CompareOptions.literal, range: nil)
+
+            let commentID = ("-L-" + dateString)
             
             //self.ref.child("COMMENTS").child((self.card?.getUrl())!).child(commentID).setValue([textField])
-            self.ref.child("COMMENTS").child((self.card?.getUrl())!).updateChildValues(([commentID: textField]))
+            self.ref.child("COMMENTS").child((self.card?.getUrl())!).updateChildValues(([dateString: textField]))
 
+            
             print("Text field: \(self.card?.getUrl()))")
         }))
         
@@ -132,8 +138,8 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func randomStringWithLength () -> NSString {
         
-        let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        let len = 17
+        let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        let len = 8
         var randomString : NSMutableString = NSMutableString(capacity: len)
         
         for _ in 0...len{
@@ -151,6 +157,16 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     //MAKE:ACTION
+    
+}
+extension Date
+{
+    func toString( dateFormat format  : String ) -> String
+    {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format
+        return dateFormatter.string(from: self)
+    }
     
 }
 

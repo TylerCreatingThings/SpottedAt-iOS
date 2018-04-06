@@ -104,7 +104,13 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
         let description = descriptionText.text
         let uuid = UUID().uuidString
         let imageID = UUID().uuidString
-        self.ref.child("POSTS").child(uuid).setValue(["id":uuid, "title": title, "image": imageID, "description": description, "latitute": latitude, "longitude": longitude])
+        let currentDateTime = Date()
+        let date = round(Date().timeIntervalSinceReferenceDate)
+        
+        
+        self.ref.child("POSTS").child(uuid).setValue(["id":uuid, "title": title, "image": imageID, "description": description, "latitude": latitude, "longitude": longitude, "date": date])
+        self.ref.child("COMMENTS").child(uuid).updateChildValues((["Not a real Post": "Empty post here #12424"]))
+
         
         let newMetadata = StorageMetadata()
         newMetadata.contentType = "image/jpeg";

@@ -85,7 +85,7 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
             }
             if(self.mapsViewObject != nil){
                 self.getNearbySpots()
-                self.placeMarkers()
+                //self.placeMarkers()
             }
         }) { (error) in
             print(error.localizedDescription)
