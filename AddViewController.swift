@@ -10,20 +10,30 @@ import UIKit
 import os.log
 import MapKit
 import CoreLocation
+import Firebase
+import FirebaseDatabase
+import FirebaseStorage
 
 
 class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINavigationControllerDelegate, UITextFieldDelegate, CLLocationManagerDelegate {
     
+    @IBOutlet weak var createSpotButton: UIButton!
+    let storage = Storage.storage()
+    var ref: DatabaseReference!
     let locationManager = CLLocationManager()
     let picker = UIImagePickerController()
     var latitude:Double?
     var longitude:Double?
     
+    
+    @IBOutlet weak var descriptionText: UITextField!
+    @IBOutlet weak var titleText: UITextField!
     @IBOutlet weak var imageView: UIImageView!
     var imagePicker: UIImagePickerController!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        createSpotButton.layer.cornerRadius = 4
         // Ask for Authorisation from the User.
         self.locationManager.requestAlwaysAuthorization()
         
@@ -76,11 +86,42 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
         imagePicker.sourceType = .camera
         
         present(imagePicker, animated: true, completion: nil)
+        
     }
     
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         imagePicker.dismiss(animated: true, completion: nil)
         imageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
+    }
+    
+    
+    @IBAction func createSpot(_ sender: UIButton) {
+        ref = Database.database().reference()
+        let storageRef = storage.reference()
+        let title = titleText.text
+        let description = descriptionText.text
+        let uuid = UUID().uuidString
+        let imageID = UUID().uuidString
+        self.ref.child("POSTS").child(uuid).setValue(["id":uuid, "title": title, "image": imageID, "description": description, "latitute": latitude, "longitude": longitude])
+        
+        let newMetadata = StorageMetadata()
+        newMetadata.contentType = "image/jpeg";
+        var data = Data()
+        data = UIImageJPEGRepresentation(imageView.image!, 0.8)!
+        print("The image id is: ", imageID)
+        let riversRef = storageRef.child(imageID)
+        
+        // Upload the file to the path "images/rivers.jpg"
+        let uploadTask = riversRef.putData(data as Data, metadata: newMetadata) { (metadata, error) in
+            guard let metadata = metadata else {
+                // Uh-oh, an error occurred!
+                return
+            }
+            // Metadata contains file metadata such as size, content-type, and download URL.
+            print("Oh my it worked!")
+            let downloadURL = metadata.downloadURL
+        }
+        
     }
     
     

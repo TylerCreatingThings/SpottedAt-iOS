@@ -13,7 +13,6 @@ import os.log
 import Darwin
 import MapKit
 import Foundation
-
 import CoreLocation
 
 
@@ -73,7 +72,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
                 }
                 let pathReference = self.storage.reference(withPath: imageName)
                 
-                pathReference.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                pathReference.getData(maxSize: 3 * 1024 * 1024) { data, error in
                     if let error = error {
                         // Uh-oh, an error occurred!
                         print("We got an error Faham")
