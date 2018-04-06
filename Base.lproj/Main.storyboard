@@ -25,10 +25,10 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Q1.png" translatesAutoresizingMaskIntoConstraints="NO" id="zxB-M5-aBi">
                                 <rect key="frame" x="0.0" y="64" width="254" height="249"/>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zP6-dr-wna">
-                                <rect key="frame" x="255" y="72" width="113" height="52"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zP6-dr-wna">
+                                <rect key="frame" x="255" y="72" width="113" height="86"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="52" id="U7E-BU-CFJ"/>
+                                    <constraint firstAttribute="height" constant="86" id="U7E-BU-CFJ"/>
                                     <constraint firstAttribute="width" constant="113" id="ULs-SB-A1d"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
@@ -42,7 +42,7 @@
                                     <action selector="addCommentWindow:" destination="BYZ-38-t0r" eventType="touchUpInside" id="IJD-8B-YZ6"/>
                                 </connections>
                             </button>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="singleLineEtched" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="5UF-1z-WdF">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="5UF-1z-WdF">
                                 <rect key="frame" x="0.0" y="359" width="375" height="308"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
@@ -77,10 +77,10 @@
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="iB0-66-yxB"/>
                                 </connections>
                             </tableView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Description:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Myh-Xy-1h5">
-                                <rect key="frame" x="255" y="124" width="113" height="189"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Description:" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Myh-Xy-1h5">
+                                <rect key="frame" x="255" y="159" width="113" height="154"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="189" id="j5F-RB-56P"/>
+                                    <constraint firstAttribute="height" constant="154" id="j5F-RB-56P"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
@@ -93,7 +93,7 @@
                             <constraint firstItem="TFq-J0-Cbd" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="22" id="5qa-nz-FGp"/>
                             <constraint firstAttribute="trailingMargin" secondItem="zP6-dr-wna" secondAttribute="trailing" constant="-9" id="BMm-fK-oPA"/>
                             <constraint firstItem="TFq-J0-Cbd" firstAttribute="top" secondItem="zxB-M5-aBi" secondAttribute="bottom" constant="8" symbolic="YES" id="Kat-yN-EPI"/>
-                            <constraint firstItem="Myh-Xy-1h5" firstAttribute="top" secondItem="zP6-dr-wna" secondAttribute="bottom" id="PTm-Se-q8M"/>
+                            <constraint firstItem="Myh-Xy-1h5" firstAttribute="top" secondItem="zP6-dr-wna" secondAttribute="bottom" constant="1" id="PTm-Se-q8M"/>
                             <constraint firstItem="zP6-dr-wna" firstAttribute="leading" secondItem="Myh-Xy-1h5" secondAttribute="leading" id="W01-JK-8la"/>
                             <constraint firstAttribute="trailing" secondItem="5UF-1z-WdF" secondAttribute="trailing" id="Ygm-fa-jih"/>
                             <constraint firstItem="5UF-1z-WdF" firstAttribute="top" secondItem="TFq-J0-Cbd" secondAttribute="bottom" constant="8" symbolic="YES" id="aj4-gs-SSy"/>
