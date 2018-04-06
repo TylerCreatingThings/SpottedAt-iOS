@@ -36,6 +36,10 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        
+        
         self.navigationItem.title = "Spots"
         self.presentingViewController?.title = "Spots"
         
@@ -62,10 +66,14 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
             //print("username is:",tests!["description"])
             var currentImage: UIImage?
             currentImage = UIImage(named:"fahamk.png");
+            var counter = 0
             for name in (value?.allValues)!{
                 var dictionary = name as? NSDictionary
                 var name = (dictionary!["title"])!
                 var imageName = (dictionary!["image"])! as! String
+                
+                var id = (value?.allKeys[counter])! as! String
+                
                 var description = (dictionary!["description"])! as! String
                 if(description == ""){
                     description = " "
@@ -81,7 +89,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
                         // Data for "images/island.jpg" is returned
                         currentImage = UIImage(data: data!)
                         print("description: ", description)
-                        self.deck.addCard(newQuestion: name as! String, newAnswer: description, newImage: currentImage!, newUrl: "test")
+                        self.deck.addCard(newQuestion: name as! String, newAnswer: description, newImage: currentImage!, newUrl: id)
                         DispatchQueue.main.async {
                             self.tableView.reloadData()
                         }
@@ -89,7 +97,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
                 }
                 
                 //print("Value is: ", (dictionary!["description"])!)
-                
+                counter = counter+1
             }
         }) { (error) in
             print(error.localizedDescription)
@@ -178,7 +186,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         
     }
     
-    
+   
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
         super.prepare(for: segue, sender: sender)
@@ -253,7 +261,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         // #warning Incomplete implementation, return the number of rows
         
         //return length of list here.
-        
+        print("The array length is:")
         return self.deck.getLength()
     }
     

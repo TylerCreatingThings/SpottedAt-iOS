@@ -36,7 +36,9 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
         createSpotButton.layer.cornerRadius = 4
         // Ask for Authorisation from the User.
         self.locationManager.requestAlwaysAuthorization()
-        
+        titleText.delegate=self
+        descriptionText.delegate=self
+        updateSaveButtonState()
         // For use in foreground
         self.locationManager.requestWhenInUseAuthorization()
         
@@ -124,6 +126,26 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
         
     }
     
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        // Disable the Save button while editing.
+        createSpotButton.isEnabled = false
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        updateSaveButtonState()
+    }
+    
+    private func updateSaveButtonState() {
+        // Disable the Save button if the text field is empty.
+        let text = titleText.text ?? ""
+        let text2 = descriptionText.text ?? ""
+        
+        //if(questionmarkName != enterPicture.backgroundImage(for: .normal)){
+        //    checkPic = true;
+        // }
+        
+        createSpotButton.isEnabled = (!text.isEmpty && !text2.isEmpty)
+    }
     
     
     
