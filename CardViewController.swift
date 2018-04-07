@@ -19,6 +19,7 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet weak var commentsTableView: UITableView!
     @IBOutlet weak var spotTitle: UILabel!
     var commentArray = [String]()
+     var c_schools = [ColoredUniversity]()
     
     var card : Card?
     var currentImage: UIImage?
@@ -27,6 +28,7 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        addComment.layer.cornerRadius = 4
         print("we got the card")
         if let card = card {
             spotTitle.text = card.getQuestion()
@@ -34,6 +36,7 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
             spotImage.image = card.getImage()
             
         }
+        
         var cardID = (card?.getUrl())!
         ref = Database.database().reference().child("COMMENTS").child(cardID)
 

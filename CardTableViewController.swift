@@ -16,6 +16,7 @@ import Foundation
 import CoreLocation
 
 
+@available(iOS 11.0, *)
 class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XMLParserDelegate, CLLocationManagerDelegate  {
     
     var ref: DatabaseReference!
@@ -30,6 +31,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     var deck = Deck()
     let storage = Storage.storage()
     var schools = [University]()
+    var c_schools = [ColoredUniversity]()
     var latitude:Double?
     var longitude:Double?
     let locationManager = CLLocationManager()
@@ -117,27 +119,18 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
                 var dictionary = name.value as? NSDictionary
                 var lat = (dictionary!["latitude"])!
                 var long = (dictionary!["longitude"])!
-                self.schools.append(University(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double))
+                let main = (dictionary!["color_back"])!
+                let back = (dictionary!["color_main"])!
+                let comp = (dictionary!["color_composite"])!
+                
+                if #available(iOS 11.0, *) {
+                    self.c_schools.append(ColoredUniversity(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double,main_color: UIColor(named: main as! String)!, back_color: UIColor(named: back as! String)!, comp_color: UIColor(named: comp as! String)! ))
+                } else {
+                    // Fallback on earlier versions
+                    self.schools.append(University(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double))
+                }
             }
-            
-            /*
-             Object value = dataSnapshot.getValue();
-             String innerValue = value.toString();
-             int location = innerValue.lastIndexOf("}");
-             String[] vals = value.toString().substring(innerValue.indexOf("uni-"), location).split("uni-");
-             //Hearst={latitude=49.7075, longitude=-83.66544},
-             for (String values : vals) {
-             if(!values.equals("")) {
-             String name = values.substring(0, values.indexOf("="));
-             String latitude = values.substring(values.indexOf("latitude=")+9, values.indexOf(","));
-             String longitude = values.substring(values.indexOf("longitude=")+10, values.indexOf("}"));
-             University uni = new University(name, Double.parseDouble(latitude), Double.parseDouble(longitude));
-             mUniversityValues.add(uni);
-             }
-             }
-             */
-            
-            
+ 
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
@@ -180,11 +173,6 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         let c = 2 * atan2(sqrt(a),sqrt(1-a))
         let distance = earthRadius * c
         return distance
-    }
-    
-    func getNearbySpots(){
-        var min = UInt16.max
-        
     }
     
    

@@ -13,20 +13,41 @@ import Foundation
 import MapKit
 import CoreLocation
 
-class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserDelegate {
-
+@available(iOS 11.0, *)
+class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserDelegate,GMSMapViewDelegate {
+    
     
     let TEN_KILOMETERS = 0.09009009009
+    var custom_kilometers:Double = 2
     var schools = [University]()
     var spots = [Card]()
     var nearbySpots = [Card]()
     var markers = [GMSMarker]()
-    var latitude:Double?
-    var longitude:Double?
+    var latitude:Double = 43.4723530
+    var longitude:Double = -80.5263400
     let locationManager = CLLocationManager()
     var ref: DatabaseReference!
     var dataStore = NSData();
     var deck = Deck()
+    var cameraBound = GMSCoordinateBounds()
+    let main_color = UIColor(named: "white")
+    let back_color = UIColor(named: "white")
+    let comp_color = UIColor(named: "white")
+    var c_schools = [ColoredUniversity]()
+
+    
+    //colors:
+    let red = UIColor(red:0.49, green:0.00, blue:0.00, alpha:1.0)
+    let green = UIColor(red:0.00, green:0.49, blue:0.00, alpha:1.0)
+    let blue = UIColor(red:0.00, green:0.00, blue:0.49, alpha:1.0)
+    let yellow = UIColor(red:1.00, green:1.00, blue:0.00, alpha:1.0)
+    let black = UIColor(red:0.00, green:0.00, blue:0.00, alpha:1.0)
+    let white = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
+    let grey = UIColor(red:0.50, green:0.50, blue:0.50, alpha:1.0)
+    let purple = UIColor(red:0.50, green:0.00, blue:0.50, alpha:1.0)
+    let orange = UIColor(red:1.00, green:0.65, blue:0.00, alpha:1.0)
+
+
     
     var mapView:GMSMapView?
     @IBOutlet var mapsViewObject: GMSMapView!
@@ -34,28 +55,23 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let camera = GMSCameraPosition.camera(withLatitude: -33.86, longitude: 151.20, zoom: 6.0)
-        mapsViewObject.camera = camera
+        
+        custom_kilometers = calculateKilometerDistance(kilometers: 5)
+        
+     
+        
         
         /*
-        // Creates a marker in the center of the map.
-        let marker = GMSMarker()
-        marker.position = CLLocationCoordinate2D(latitude: -33.86, longitude: 151.20)
-        marker.title = "Sydney"
-        marker.snippet = "Australia"
-        marker.map = mapsViewObject
-        */
+         // Creates a marker in the center of the map.
+         let marker = GMSMarker()
+         marker.position = CLLocationCoordinate2D(latitude: -33.86, longitude: 151.20)
+         marker.title = "Sydney"
+         marker.snippet = "Australia"
+         marker.map = mapsViewObject
+         */
         
-        self.locationManager.requestAlwaysAuthorization()
-        
-        // For use in foreground
-        self.locationManager.requestWhenInUseAuthorization()
-        
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-            locationManager.startUpdatingLocation()
-        }
+        mapsViewObject.settings.myLocationButton = true
+        startReceivingLocationChanges()
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         
@@ -71,134 +87,164 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
             var currentImage: UIImage?
             currentImage = UIImage(named:"fahamk.png");
             for name in (value?.allValues)!{
-                var dictionary = name as? NSDictionary
-                var name = (dictionary!["title"])!
-                var lat = (dictionary!["latitude"])! as! Double
-                var long = (dictionary!["longitude"])! as! Double
-
+                let dictionary = name as? NSDictionary
+                let name = (dictionary!["title"])!
+                let lat = (dictionary!["latitude"])!
+                let long = (dictionary!["longitude"])!
+             
                 
                 
                 print("Value is: ", (dictionary!["description"])!)
-                self.spots.append(Card(image: currentImage!, question: name as! String, answer: "test", url: "test", latitude: lat, longitude: long)!)
+                self.spots.append(Card(image: currentImage!, question: name as! String, answer: "test", url: "test", latitude: lat as! Double, longitude: long as! Double)!)
                 
                 
             }
             if(self.mapsViewObject != nil){
                 self.getNearbySpots()
-                //self.placeMarkers()
             }
         }) { (error) in
             print(error.localizedDescription)
         }
         
-        //schools.append(University)
+        
+        ref.child("UNIVERSITIES").observeSingleEvent(of: .value, with: { (snapshot) in
+            // Get user value
+            let value = snapshot.value as? NSDictionary
+            //var tests = value?.allValues[0] as? NSDictionary
+            //print("username is:",tests!["description"])
+            
+            for name in (value)!{
+                
+                print(name.key)
+                
+                var dictionary = name.value as? NSDictionary
+                var lat = (dictionary!["latitude"])!
+                var long = (dictionary!["longitude"])!
+                let main = (dictionary!["color_back"])!
+                let back = (dictionary!["color_main"])!
+                let comp = (dictionary!["color_composite"])!
 
+                
+                if(comp as! String == "blank"){
+                    self.c_schools.append(ColoredUniversity(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double,main_color: UIColor(named: main as! String)!, back_color: UIColor(named: back as! String)!, comp_color: UIColor(named: "black")! ))
+                }
+                else{
+                        self.c_schools.append(ColoredUniversity(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double,main_color: UIColor(named: main as! String)!, back_color: UIColor(named: back as! String)!, comp_color: UIColor(named: comp as! String)! ))
+                }
+               
+                
+            }
+        }) { (error) in
+            print(error.localizedDescription)
+        }
+        //schools.append(University)
+        
+       
         
         // Do any additional setup after loading the view.
     }
-
+   
+    /*override func loadView() {
+        let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: 6.0)
+        mapsViewObject.camera = camera
+        
+    }*/
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    func getColor(color: String)->UIColor{
+        
+    }
+    
+    func mapView(_ mapView: GMSMapView, didTap marker: GMSMarker) -> Bool {
+        print ("MarkerTapped Locations: \(marker.position.latitude), \(marker.position.longitude)")
+        
+        for place in (nearbySpots) {
+            if(marker.position.latitude == place.getLatitude() && marker.position.latitude == place.getLongitude()){
+                let vc = CardViewController() //your view controller
+                vc.card = place
+                
+                self.present(vc, animated: true, completion: nil)
+            }
+        }
+        return true
+    }
+    
+    func getNeartestUniversity()->ColoredUniversity{
+        
+        var selected:ColoredUniversity?
+        var min:Double = Double.greatestFiniteMagnitude
+        for uni in self.c_schools {
+            let distance:Double = calculateDistance(lat1: self.latitude, lon1: self.longitude, lat2: uni.getLatitude(), lon2: uni.getLongitude())
+            if(min > distance){
+                min = distance
+                selected = uni
+            }
+            
+        }
+        return selected!
+        
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-        latitude = locValue.latitude
-        longitude = locValue.longitude
+       // latitude = locValue.latitude
+       // longitude = locValue.longitude
+
     }
     
     
-    /* public void getNearbySpots(){
-     int min = 10;
-     Log.d("WSM","GetNearbySpots"+Integer.toString(mSpots.size()));
-     
-     try {
-     for(Card curCard : mSpots){
-     if((abs(mLatitude-curCard.getLatitude()))<TEN_KILOMETERS || (abs(mLongitude-curCard.getLongitude()))<TEN_KILOMETERS) {
-     double distance = calculateDistance(mLatitude, mLongitude, curCard.getLatitude(), curCard.getLongitude());
-     if (min > distance) {
-     Log.d("WSM","Got nearby spots");
-     mNearbySpots.add(curCard);
-     }
-     }
-     }
-     }
-     catch (NullPointerException e){
-     e.printStackTrace();
-     }
-     if(mMap!=null) {
-     placeMarkers();
-     }
-     }
-     */
+    func startReceivingLocationChanges() {
+        let authorizationStatus = CLLocationManager.authorizationStatus()
+        if authorizationStatus != .authorizedWhenInUse && authorizationStatus != .authorizedAlways {
+            // User has not authorized access to location information.
+            return
+        }
+        // Do not start services that aren't available.
+        if !CLLocationManager.locationServicesEnabled() {
+            // Location services is not available.
+            return
+        }
+        // Configure and start the service.
+        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        locationManager.distanceFilter = 100.0  // In meters.
+        locationManager.delegate = self
+        locationManager.startUpdatingLocation()
+    }
+    
+    
     func getNearbySpots(){
         //var min = 10
         
         for spot in spots {
-            if((abs(self.latitude! - spot.getLatitude()))<TEN_KILOMETERS || (abs(self.longitude! - spot.getLongitude()))<TEN_KILOMETERS){
-                let distance = calculateDistance(lat1: self.latitude!, lon1: self.longitude!, lat2: spot.getLatitude(), lon2: spot.getLongitude())
+            
+            if((abs(self.latitude - spot.getLatitude()))<custom_kilometers || (abs(self.longitude - spot.getLongitude()))<custom_kilometers){
+                let distance = calculateDistance(lat1: self.latitude, lon1: self.longitude, lat2: spot.getLatitude(), lon2: spot.getLongitude())
                 nearbySpots.append(spot)
             }
         }
+        placeMarkers()
+
         
     }
     
-    func calculateDistance(kilometers: Int)->Double{
-        let one_degree = 111
-        let distance:Double = Double(kilometers/one_degree)
+    func calculateKilometerDistance(kilometers: Double)->Double{
+        let one_degree:Double = 111
+        let distance:Double = kilometers/one_degree
         return distance
     }
-    /*public void placeMarkers(){
-     Log.d("WSM","placeMarkers"+Integer.toString(mSpots.size()));
-     //Set Camera to current location
-     Log.d("main","OK SO THIS IS THE LOCATION:"+mLongitude+" "+mLatitude);
-     LatLng curLocation = new LatLng(mLatitude, mLongitude);
-     if(permReady==false){
-     Log.d("test","Not this time");
-     permReady=true;
-     }
-     else {
-     mMap.moveCamera(CameraUpdateFactory.newLatLng(curLocation));
-     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLatitude, mLongitude), 12.0f));
-     
-     }
-     Log.d("WSM","Got here" + Integer.toString(mNearbySpots.size()));
-     
-     
-     
-     for(Card curCard : mNearbySpots){
-     Log.d("WSM","Placing markers");
-     LatLng curSpot = new LatLng(curCard.getLatitude(), curCard.getLongitude());
-     mMarkers.add(mMap.addMarker(new MarkerOptions().position(curSpot).title(curCard.getTitle()).icon(BitmapDescriptorFactory.fromResource(R.drawable.spottedmarker))));
-     }
-     
-     if(mNearbySpots.size()>0) {
-     LatLngBounds.Builder builder = new LatLngBounds.Builder();
-     LatLng curPoint = new LatLng(mLatitude,mLongitude);
-     builder.include(curPoint);
-     for (Marker marker : mMarkers) {
-     builder.include(marker.getPosition());
-     }
-     LatLngBounds bounds = builder.build();
-     int padding = 100; // offset from edges of the map in pixels
-     cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-     if(mMap!=null) {
-     mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-     @Override
-     public void onMapLoaded() {
-     mMap.animateCamera(cu);                    }
-     });
-     
-     
-     }
-     }
-     }*/
+    @IBOutlet weak var listButton: UIBarButtonItem!
+    @IBOutlet weak var centerButton: UIBarButtonItem!
+    
+    @IBOutlet weak var universityTitle: UILabel!
     func placeMarkers(){
-        if(nearbySpots.count > 0){
-            var cameraBound = GMSCoordinateBounds()
-            let curPoint = CLLocationCoordinate2D(latitude: latitude!, longitude: longitude!)
+
+            
+            let curPoint = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            
             cameraBound.includingCoordinate(curPoint)
             for spot in (nearbySpots) {
                 let marker = GMSMarker()
@@ -206,12 +252,27 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
                 marker.title = spot.getQuestion()
                 marker.snippet = spot.getQuestion()
                 marker.map = mapsViewObject
+                marker.icon = UIImage(named: "spottedmarker-mini")
                 markers.append(marker)
                 cameraBound.includingCoordinate(marker.position)
+                print(spot.getQuestion())
             }
-            let camera = mapsViewObject.camera(for: cameraBound, insets: UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50))
-            mapsViewObject.camera = camera!
-        }
+            
+            
+            let update = GMSCameraUpdate.fit(cameraBound, with: UIEdgeInsets(top: 100, left: 100, bottom: 100, right: 100))
+            mapsViewObject.moveCamera(update)
+            mapsViewObject.animate(toZoom: 16)
+        
+        var nearUni = getNeartestUniversity()
+        
+        universityTitle.text = "Spotted @ " + nearUni.getName()
+        universityTitle.textColor = nearUni.main_color
+        listButton.tintColor = nearUni.back_color
+        centerButton.tintColor = nearUni.back_color
+    }
+    func updateCameraToBounds(){
+            let update = GMSCameraUpdate.fit(cameraBound, with: UIEdgeInsets(top: 100, left: 100, bottom: 100, right: 100))
+            mapsViewObject.moveCamera(update)
     }
     
     func calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double)->Double{
@@ -225,15 +286,15 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
         let distance = earthRadius * c
         return distance
     }
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }
