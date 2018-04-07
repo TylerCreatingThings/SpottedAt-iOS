@@ -30,12 +30,13 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     let LINK_NAME = "link"
     var deck = Deck()
     let storage = Storage.storage()
-    var schools = [University]()
-    var c_schools = [ColoredUniversity]()
+    var nearbyUniversity:ColoredUniversity?
     var latitude:Double?
     var longitude:Double?
     let locationManager = CLLocationManager()
     
+    @IBOutlet weak var addButton: UIBarButtonItem!
+    @IBOutlet weak var mapButton: UIBarButtonItem!
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -44,7 +45,8 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         
         self.navigationItem.title = "Spots"
         self.presentingViewController?.title = "Spots"
-        
+        addButton.tintColor = nearbyUniversity?.getMainColor()
+        mapButton.tintColor = nearbyUniversity?.getMainColor()
         self.locationManager.requestAlwaysAuthorization()
         
         // For use in foreground
@@ -106,37 +108,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
             print(error.localizedDescription)
         }
         
-        ref.child("UNIVERSITIES").observeSingleEvent(of: .value, with: { (snapshot) in
-            // Get user value
-            let value = snapshot.value as? NSDictionary
-            //var tests = value?.allValues[0] as? NSDictionary
-            //print("username is:",tests!["description"])
-            
-            for name in (value)!{
-                
-                print(name.key)
-                
-                var dictionary = name.value as? NSDictionary
-                var lat = (dictionary!["latitude"])!
-                var long = (dictionary!["longitude"])!
-                let main = (dictionary!["color_back"])!
-                let back = (dictionary!["color_main"])!
-                let comp = (dictionary!["color_composite"])!
-                
-                if #available(iOS 11.0, *) {
-                    self.c_schools.append(ColoredUniversity(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double,main_color: UIColor(named: main as! String)!, back_color: UIColor(named: back as! String)!, comp_color: UIColor(named: comp as! String)! ))
-                } else {
-                    // Fallback on earlier versions
-                    self.schools.append(University(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double))
-                }
-            }
- 
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
-        }) { (error) in
-            print(error.localizedDescription)
-        }
+    
         
     }
     
@@ -146,39 +118,22 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         longitude = locValue.longitude
     }
     
-    func getNeartestUniversity()->String{
-        
-        var selected:University?
-        var min:Double = Double.greatestFiniteMagnitude
-        for uni in self.schools {
-            let distance:Double = calculateDistance(lat1: self.latitude!, lon1: self.longitude!, lat2: uni.getLatitude(), lon2: uni.getLongitude())
-            if(min > distance){
-                min = distance
-                selected = uni
-            }
-            
-        }
-        return (selected?.getName())!
-        
+    
+    func initWithData(data: ColoredUniversity){ self.nearbyUniversity = data
     }
-    
-    
-    func calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double)->Double{
-        let earthRadius:Double = 6371
-        let rLat1 = lat1 * .pi / 180
-        let rLat2 = lat2 * .pi / 180
-        let latDiff = (lat2-lat1) * .pi / 180
-        let longDiff = (lon2-lon1) * .pi / 180
-        let a = sin(latDiff/2) * sin(latDiff/2) + cos(rLat1) + cos(rLat2) + sin(longDiff/2) * sin(longDiff/2)
-        let c = 2 * atan2(sqrt(a),sqrt(1-a))
-        let distance = earthRadius * c
-        return distance
-    }
-    
-   
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
         super.prepare(for: segue, sender: sender)
+        
+        if(segue.identifier == "addSpot"){
+            let addViewController = segue.destination as? AddViewController
+            addViewController?.initWithData(data: self.nearbyUniversity!)
+        }
+        else if(segue.identifier == "mapShow"){
+            let mapViewController = segue.destination as? MapsViewController
+            mapViewController?.initWithData(data: self.nearbyUniversity!)
+        }
+  
         
         switch(segue.identifier ?? "") {
         case "ShowDetail":
@@ -202,7 +157,8 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
                 fatalError("Unexpected destination: \(segue.destination)")
             }
         case "addSpot":
-            guard let addViewController = segue.destination as? AddViewController else {
+            guard let addViewController = segue.destination as? AddViewController
+                else {
                 fatalError("Unexpected destination: \(segue.destination)")
             }
             
@@ -265,9 +221,10 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         let card = self.deck.getElementAtIndex(index: indexPath.row)
         
         cell.nameLabel.text = card.getQuestion()
+        cell.nameLabel.textColor = nearbyUniversity?.getMainColor()
         cell.photoImageView.image = card.getImage()
         cell.descriptionLabel.text = card.getAnswer()
-        
+        cell.descriptionLabel.textColor = nearbyUniversity?.getBackColor()
         cell.mainBackground.layer.shadowColor = UIColor.gray.cgColor
         cell.mainBackground.layer.shadowColor = UIColor.gray.cgColor
         

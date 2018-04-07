@@ -24,8 +24,13 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
     let picker = UIImagePickerController()
     var latitude:Double?
     var longitude:Double?
+    var nearbyUniversity:ColoredUniversity?
     
     
+    @IBOutlet weak var textfieldDescLabel: UILabel!
+    @IBOutlet weak var textfieldTitleLabel: UILabel!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var pictureLabel: UIButton!
     @IBOutlet weak var descriptionText: UITextField!
     @IBOutlet weak var titleText: UITextField!
     @IBOutlet weak var imageView: UIImageView!
@@ -33,6 +38,14 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        textfieldDescLabel.textColor = nearbyUniversity?.getBackColor()
+        textfieldTitleLabel.textColor = nearbyUniversity?.getBackColor()
+        titleLabel.textColor = nearbyUniversity?.getMainColor()
+        pictureLabel.setTitleColor(nearbyUniversity?.getMainColor(), for: .normal)
+        createSpotButton.setTitleColor(nearbyUniversity?.getMainColor(), for: .normal)
+        createSpotButton.tintColor = nearbyUniversity?.getBackColor()
+        
+        
         createSpotButton.layer.cornerRadius = 4
         // Ask for Authorisation from the User.
         self.locationManager.requestAlwaysAuthorization()
@@ -59,6 +72,8 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    func initWithData(data: ColoredUniversity){ self.nearbyUniversity = data
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {

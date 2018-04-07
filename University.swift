@@ -9,9 +9,9 @@
 import UIKit
 
 class University: NSObject {
-    let name:String?
-    let latitude:Double?
-    let longitude:Double?
+    private let name:String?
+    private let latitude:Double?
+    private let longitude:Double?
 
     
     init(name: String, latitude: Double, longitude: Double){

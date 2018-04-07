@@ -12,6 +12,8 @@ import FirebaseDatabase
 import Foundation
 import MapKit
 import CoreLocation
+import Darwin
+import CoreMotion
 
 @available(iOS 11.0, *)
 class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserDelegate,GMSMapViewDelegate {
@@ -19,7 +21,6 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
     
     let TEN_KILOMETERS = 0.09009009009
     var custom_kilometers:Double = 2
-    var schools = [University]()
     var spots = [Card]()
     var nearbySpots = [Card]()
     var markers = [GMSMarker]()
@@ -37,16 +38,17 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
 
     
     //colors:
-    let red = UIColor(red:0.49, green:0.00, blue:0.00, alpha:1.0)
-    let green = UIColor(red:0.00, green:0.49, blue:0.00, alpha:1.0)
-    let blue = UIColor(red:0.00, green:0.00, blue:0.49, alpha:1.0)
-    let yellow = UIColor(red:1.00, green:1.00, blue:0.00, alpha:1.0)
+    let red = UIColor(red:1.00, green:0.00, blue:0.00, alpha:1.0)
+    let green = UIColor(red:0.00, green:1.00, blue:0.00, alpha:1.0)
+    let blue = UIColor(red:0.00, green:0.00, blue:1.00, alpha:1.0)
+    let yellow = UIColor(red:1.00, green:0.84, blue:0.00, alpha:1.0)
     let black = UIColor(red:0.00, green:0.00, blue:0.00, alpha:1.0)
     let white = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
     let grey = UIColor(red:0.50, green:0.50, blue:0.50, alpha:1.0)
     let purple = UIColor(red:0.50, green:0.00, blue:0.50, alpha:1.0)
     let orange = UIColor(red:1.00, green:0.65, blue:0.00, alpha:1.0)
-
+    
+    var nearestUni:ColoredUniversity?
 
     
     var mapView:GMSMapView?
@@ -69,8 +71,6 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
          marker.snippet = "Australia"
          marker.map = mapsViewObject
          */
-        
-        mapsViewObject.settings.myLocationButton = true
         startReceivingLocationChanges()
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
@@ -120,20 +120,15 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
                 var dictionary = name.value as? NSDictionary
                 var lat = (dictionary!["latitude"])!
                 var long = (dictionary!["longitude"])!
-                let main = (dictionary!["color_back"])!
-                let back = (dictionary!["color_main"])!
+                let main = (dictionary!["color_main"])!
+                let back = (dictionary!["color_back"])!
                 let comp = (dictionary!["color_composite"])!
 
-                
-                if(comp as! String == "blank"){
-                    self.c_schools.append(ColoredUniversity(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double,main_color: UIColor(named: main as! String)!, back_color: UIColor(named: back as! String)!, comp_color: UIColor(named: "black")! ))
-                }
-                else{
-                        self.c_schools.append(ColoredUniversity(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double,main_color: UIColor(named: main as! String)!, back_color: UIColor(named: back as! String)!, comp_color: UIColor(named: comp as! String)! ))
-                }
+                self.c_schools.append(ColoredUniversity(name: name.key as! String, latitude: lat as! Double, longitude: long as! Double,main_color: self.getColor(color: main as! String), back_color: self.getColor(color: back as! String), comp_color: self.getColor(color: comp as! String) ))
                
                 
             }
+            self.nearestUni = self.getNeartestUniversity()
         }) { (error) in
             print(error.localizedDescription)
         }
@@ -149,6 +144,8 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
         mapsViewObject.camera = camera
         
     }*/
+    func initWithData(data: ColoredUniversity){ self.nearestUni = data
+    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -156,7 +153,47 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
     }
     
     func getColor(color: String)->UIColor{
-        
+        switch color
+        {
+            case "red" :
+                return red
+            case "blue" :
+                return blue
+            case "purple" :
+                return purple
+            case "orange" :
+                return orange
+            case "yellow" :
+                return yellow
+            case "black" :
+                return black
+            case "white" :
+                return white
+            default :
+                return green
+        }
+    }
+    
+    func getMarkerColor(color: UIColor)->String{
+        switch color
+        {
+        case red :
+            return "spottedmarker-mini-red"
+        case blue :
+            return "spottedmarker-mini-blue"
+        case purple :
+            return "spottedmarker-mini-purple"
+        case orange :
+            return "spottedmarker-mini-orange"
+        case yellow :
+            return "spottedmarker-mini-yellow"
+        case black :
+            return "spottedmarker-mini-black"
+        case white :
+            return "spottedmarker-mini-white"
+        default :
+            return "spottedmarker-mini"
+        }
     }
     
     func mapView(_ mapView: GMSMapView, didTap marker: GMSMarker) -> Bool {
@@ -175,24 +212,25 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
     
     func getNeartestUniversity()->ColoredUniversity{
         
-        var selected:ColoredUniversity?
+        var selected = ColoredUniversity(name: "", latitude: 0, longitude: 0, main_color: red, back_color: red, comp_color: red)
         var min:Double = Double.greatestFiniteMagnitude
         for uni in self.c_schools {
             let distance:Double = calculateDistance(lat1: self.latitude, lon1: self.longitude, lat2: uni.getLatitude(), lon2: uni.getLongitude())
+
             if(min > distance){
                 min = distance
                 selected = uni
             }
             
         }
-        return selected!
-        
+        return selected
+    
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-       // latitude = locValue.latitude
-       // longitude = locValue.longitude
+        //latitude = locValue.latitude
+        //longitude = locValue.longitude
 
     }
     
@@ -231,18 +269,19 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
         
     }
     
+    
     func calculateKilometerDistance(kilometers: Double)->Double{
         let one_degree:Double = 111
         let distance:Double = kilometers/one_degree
         return distance
     }
     @IBOutlet weak var listButton: UIBarButtonItem!
-    @IBOutlet weak var centerButton: UIBarButtonItem!
+    @IBOutlet weak var centerButton: UIButton!
     
     @IBOutlet weak var universityTitle: UILabel!
     func placeMarkers(){
 
-            
+        
             let curPoint = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
             
             cameraBound.includingCoordinate(curPoint)
@@ -252,7 +291,7 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
                 marker.title = spot.getQuestion()
                 marker.snippet = spot.getQuestion()
                 marker.map = mapsViewObject
-                marker.icon = UIImage(named: "spottedmarker-mini")
+                marker.icon = UIImage(named: getMarkerColor(color: (nearestUni?.getMainColor())!))
                 markers.append(marker)
                 cameraBound.includingCoordinate(marker.position)
                 print(spot.getQuestion())
@@ -263,38 +302,49 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
             mapsViewObject.moveCamera(update)
             mapsViewObject.animate(toZoom: 16)
         
-        var nearUni = getNeartestUniversity()
+ 
         
-        universityTitle.text = "Spotted @ " + nearUni.getName()
-        universityTitle.textColor = nearUni.main_color
-        listButton.tintColor = nearUni.back_color
-        centerButton.tintColor = nearUni.back_color
-    }
-    func updateCameraToBounds(){
-            let update = GMSCameraUpdate.fit(cameraBound, with: UIEdgeInsets(top: 100, left: 100, bottom: 100, right: 100))
-            mapsViewObject.moveCamera(update)
+        universityTitle.text = "Spotted @ " + nearestUni!.getName()
+        universityTitle.textColor = nearestUni!.getMainColor()
+        listButton.tintColor = nearestUni!.getBackColor()
+        centerButton.tintColor = nearestUni!.getCompositeColor()
+        
+        let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: 16.0)
+        mapsViewObject.camera = camera
     }
     
+    @IBAction func centerMap(_ sender: Any) {
+                let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: 16.0)
+        mapsViewObject.moveCamera(GMSCameraUpdate.setCamera(camera))
+        
+    }
     func calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double)->Double{
         let earthRadius:Double = 6371
         let rLat1 = lat1 * .pi / 180
         let rLat2 = lat2 * .pi / 180
-        let latDiff = (lat2-lat1) * .pi / 180
-        let longDiff = (lon2-lon1) * .pi / 180
-        let a = sin(latDiff/2) * sin(latDiff/2) + cos(rLat1) + cos(rLat2) + sin(longDiff/2) * sin(longDiff/2)
-        let c = 2 * atan2(sqrt(a),sqrt(1-a))
+        let rLon1 = lon1 * .pi / 180
+        let rLon2 = lon2 * .pi / 180
+        
+        let latDiff = (lat2 - lat1) * .pi / 180
+        let longDiff = (lon2 - lon1) * .pi / 180
+        let a = sin(latDiff/2) * sin(latDiff/2) + cos(rLat1) * cos(rLat2) * sin(longDiff/2) * sin(longDiff/2)
+        var c = 2.0 * (atan2(sqrt(a),sqrt(abs(1-a))))
+        
         let distance = earthRadius * c
         return distance
     }
     
-    /*
+    
      // MARK: - Navigation
      
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destinationViewController.
-     // Pass the selected object to the new view controller.
-     }
-     */
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        super.prepare(for: segue, sender: sender)
+        if(segue.identifier == "showList"){
+            let dest = segue.destination as! UINavigationController
+            let destVC = dest.viewControllers.first as! CardTableViewController
+            destVC.initWithData(data: self.nearestUni!)
+            
+        }
+    }
     
 }

@@ -20,6 +20,7 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet weak var spotTitle: UILabel!
     var commentArray = [String]()
      var c_schools = [ColoredUniversity]()
+    var nearbyUniversity:ColoredUniversity?
     
     var card : Card?
     var currentImage: UIImage?
@@ -29,10 +30,13 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
     override func viewDidLoad() {
         super.viewDidLoad()
         addComment.layer.cornerRadius = 4
+        addComment.tintColor = nearbyUniversity?.getBackColor()
         print("we got the card")
         if let card = card {
             spotTitle.text = card.getQuestion()
+            spotTitle.textColor = nearbyUniversity?.getMainColor()
             spotDescription.text   = card.getAnswer()
+            spotDescription.textColor = nearbyUniversity?.getCompositeColor()
             spotImage.image = card.getImage()
             
         }
@@ -74,6 +78,9 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
 
     }
     
+    func initWithData(data: ColoredUniversity){ self.nearbyUniversity = data
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print("Array count is: ")
         return self.commentArray.count
@@ -91,6 +98,7 @@ class CardViewController: UIViewController, UITableViewDelegate, UITableViewData
         print("We get here3")
         //adding values to labels
         cell.commentsLabel.text = comment
+        cell.commentsLabel.textColor = nearbyUniversity?.getMainColor()
         print("We get here4")
         //returning cell
         return cell
