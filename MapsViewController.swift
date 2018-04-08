@@ -35,6 +35,7 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
     let back_color = UIColor(named: "white")
     let comp_color = UIColor(named: "white")
     var c_schools = [ColoredUniversity]()
+    var card:Card?
 
     
     //colors:
@@ -202,14 +203,14 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
             
             let x = GMSMarker(position: CLLocationCoordinate2D(latitude: place.getLatitude(), longitude: place.getLongitude()))
             if(marker.position.latitude == x.position.latitude && marker.position.latitude == x.position.latitude){
-                let vc = CardTableViewController() //your view controller
-                vc.card = place
+                let vc = CardViewController() //your view controller
+                card = place
+                self.performSegue(withIdentifier: "ShowEventDetails", sender: self)
                // let selectedCardCell = sender as? CardTableViewCell
                // let indexPath = tableView.indexPath(for: selectedCardCell)
                // let selectedCard = deck.getElementAtIndex(index: indexPath.row)
                //CardViewController.card = place
-                vc.initWithData(data: nearestUni!)
-               self.present(vc, animated: true, completion: nil)
+                
             }
         }
         return true
@@ -349,6 +350,15 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
             let destVC = dest.viewControllers.first as! CardTableViewController
             destVC.initWithData(data: self.nearestUni!)
             
+        }
+        else if(segue.identifier == "ShowEventDetails"){
+            guard let CardViewController = segue.destination as? CardViewController else {
+                fatalError("Unexpected destination: \(segue.destination)")
+            }
+            
+            
+            CardViewController.card = self.card
+            CardViewController.initWithData(data: nearestUni!)
         }
     }
     
