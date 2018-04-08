@@ -29,6 +29,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     let ELEMENT_NAME = "description"
     let LINK_NAME = "link"
     var deck = Deck()
+    var card:Card?
     let storage = Storage.storage()
     var nearbyUniversity:ColoredUniversity?
     var latitude:Double?
@@ -40,8 +41,11 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        
+
+        if(card != nil){
+            //self.navigationController?.pushViewController(nextViewController, animated: true)
+            self.performSegue(withIdentifier: "ShowDetailDiff", sender: nil)
+        }
         
         self.navigationItem.title = "Spots"
         self.presentingViewController?.title = "Spots"
@@ -150,6 +154,9 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
             }
             let selectedCard = deck.getElementAtIndex(index: indexPath.row)
             CardViewController.card = selectedCard
+            if(card != nil){
+                CardViewController.card = self.card
+            }
             print("Here again too")
         
         case "mapShow":
