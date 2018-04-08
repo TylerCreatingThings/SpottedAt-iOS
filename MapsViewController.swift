@@ -59,9 +59,7 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
         super.viewDidLoad()
         
         custom_kilometers = calculateKilometerDistance(kilometers: 5)
-        
-     
-        
+        mapsViewObject.delegate = self
         
         /*
          // Creates a marker in the center of the map.
@@ -200,11 +198,18 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
         print ("MarkerTapped Locations: \(marker.position.latitude), \(marker.position.longitude)")
         
         for place in (nearbySpots) {
-            if(marker.position.latitude == place.getLatitude() && marker.position.latitude == place.getLongitude()){
-                let vc = CardViewController() //your view controller
+            print(place.getLatitude(),place.getLongitude())
+            
+            let x = GMSMarker(position: CLLocationCoordinate2D(latitude: place.getLatitude(), longitude: place.getLongitude()))
+            if(marker.position.latitude == x.position.latitude && marker.position.latitude == x.position.latitude){
+                let vc = CardTableViewController() //your view controller
                 vc.card = place
-                
-                self.present(vc, animated: true, completion: nil)
+               // let selectedCardCell = sender as? CardTableViewCell
+               // let indexPath = tableView.indexPath(for: selectedCardCell)
+               // let selectedCard = deck.getElementAtIndex(index: indexPath.row)
+               //CardViewController.card = place
+                vc.initWithData(data: nearestUni!)
+               self.present(vc, animated: true, completion: nil)
             }
         }
         return true
