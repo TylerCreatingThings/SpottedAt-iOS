@@ -25,7 +25,7 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
     var latitude:Double?
     var longitude:Double?
     var nearbyUniversity:ColoredUniversity?
-    
+    var cameraUsed=false
     
     @IBOutlet weak var textfieldDescLabel: UILabel!
     @IBOutlet weak var textfieldTitleLabel: UILabel!
@@ -35,9 +35,10 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
     @IBOutlet weak var titleText: UITextField!
     @IBOutlet weak var imageView: UIImageView!
     var imagePicker: UIImagePickerController!
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        createSpotButton.backgroundColor = nearbyUniversity?.getBackColor()
         textfieldDescLabel.textColor = nearbyUniversity?.getBackColor()
         textfieldTitleLabel.textColor = nearbyUniversity?.getBackColor()
         titleLabel.textColor = nearbyUniversity?.getMainColor()
@@ -98,6 +99,7 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
     }
     
     @IBAction func takePhoto(_ sender: UIButton) {
+        cameraUsed=true
         imagePicker =  UIImagePickerController()
         imagePicker.delegate = self
         imagePicker.sourceType = .camera
@@ -113,28 +115,34 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
     
     
     @IBAction func createSpot(_ sender: UIButton) {
+        let alert = UIAlertController(title: "Creating Your Spot", message: "Please Wait, This May Take Some Time", preferredStyle: .alert)
+        
+        self.present(alert, animated: true, completion: nil)
+        
         ref = Database.database().reference()
         let storageRef = storage.reference()
         let title = titleText.text
         let description = descriptionText.text
         let uuid = UUID().uuidString
         let imageID = UUID().uuidString
-        let currentDateTime = Date()
+        _ = Date()
         let date = round(Date().timeIntervalSinceReferenceDate)
         
         
-        self.ref.child("POSTS").child(uuid).setValue(["id":uuid, "title": title, "image": imageID, "description": description, "latitude": latitude, "longitude": longitude, "date": date])
+        self.ref.child("POSTS").child(uuid).setValue(["id":uuid, "title": title ?? "None", "image": imageID, "description": description ?? "None", "latitude": latitude ?? 43.473134, "longitude": longitude ?? -80.525609, "date": date])
         self.ref.child("COMMENTS").child(uuid).updateChildValues((["Not a real Post": "Empty post here #12424"]))
-
+        
         
         let newMetadata = StorageMetadata()
         newMetadata.contentType = "image/jpeg";
         var data = Data()
-        data = UIImageJPEGRepresentation(imageView.image!, 0.8)!
+        
+        data = UIImageJPEGRepresentation(imageView.image!, 0.04)!
         print("The image id is: ", imageID)
         let riversRef = storageRef.child(imageID)
         
-        // Upload the file to the path "images/rivers.jpg"
+        
+        
         let uploadTask = riversRef.putData(data as Data, metadata: newMetadata) { (metadata, error) in
             guard let metadata = metadata else {
                 // Uh-oh, an error occurred!
@@ -142,8 +150,14 @@ class AddViewController: UIViewController, UIImagePickerControllerDelegate,UINav
             }
             // Metadata contains file metadata such as size, content-type, and download URL.
             print("Oh my it worked!")
-            let downloadURL = metadata.downloadURL
         }
+        
+        uploadTask.observe(.success) { snapshot in
+            
+            self.performSegue(withIdentifier: "unwindToDeckList", sender: self)
+        }
+        
+        
         
     }
     

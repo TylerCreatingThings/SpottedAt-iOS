@@ -19,7 +19,7 @@ import CoreLocation
 @available(iOS 11.0, *)
 class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XMLParserDelegate, CLLocationManagerDelegate  {
     
-    var ref: DatabaseReference!
+    var ref = Database.database().reference()
     var dataStore = NSData();
     let urlPath: String = "http://rss.cbc.ca/lineup/topstories.xml"
     var currentElement = ""
@@ -38,6 +38,12 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
     
     @IBOutlet weak var addButton: UIBarButtonItem!
     @IBOutlet weak var mapButton: UIBarButtonItem!
+    
+    
+    @IBOutlet weak var refreshButton: UIBarButtonItem!
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -51,6 +57,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         self.presentingViewController?.title = "Spots"
         addButton.tintColor = nearbyUniversity?.getMainColor()
         mapButton.tintColor = nearbyUniversity?.getMainColor()
+        refreshButton.tintColor = nearbyUniversity?.getMainColor()
         self.locationManager.requestAlwaysAuthorization()
         
         // For use in foreground
@@ -63,44 +70,75 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         }
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        getData()
         
-        ref = Database.database().reference()
+        //ref = Database.database().reference().child("COMMENTS").child(cardID)
         
-        self.ref.child("Users").setValue(["username": "FahamKhan Lets go"])
-        ref.child("POSTS").observeSingleEvent(of: .value, with: { (snapshot) in
+        
+        //if cardID != nil {
+        
+        //    self.ref.queryOrderedByKey().observe(DataEventType.value, with: { (snapshot) in
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+        latitude = locValue.latitude
+        longitude = locValue.longitude
+    }
+    
+   
+    @IBAction func refreshValues(_ sender: UIBarButtonItem) {
+        getData()
+    }
+    
+    
+    
+    func getData(){
+        refreshButton.isEnabled=false
+        ref.removeAllObservers()
+        
+        ref.child("POSTS").queryOrdered(byChild: "date").observeSingleEvent(of: .value, with: { (snapshot) in
             // Get user value
             let value = snapshot.value as? NSDictionary
             //var tests = value?.allValues[0] as? NSDictionary
             //print("username is:",tests!["description"])
+            
             var currentImage: UIImage?
             currentImage = UIImage(named:"fahamk.png");
             var counter = 0
             for name in (value?.allValues)!{
-                var dictionary = name as? NSDictionary
-                var name = (dictionary!["title"])!
-                var imageName = (dictionary!["image"])! as! String
-                var longitude=(dictionary!["longitude"])! as! Double
-                var latitude = (dictionary!["latitude"])! as! Double
-                var id = (value?.allKeys[counter])! as! String
-                
+                let dictionary = name as? NSDictionary
+                let name = (dictionary!["title"])!
+                let imageName = (dictionary!["image"])! as! String
+                let longitude=(dictionary!["longitude"])! as! Double
+                let latitude = (dictionary!["latitude"])! as! Double
+                let date = (dictionary!["date"])! as! Int
+                let id = (value?.allKeys[counter])! as! String
                 var description = (dictionary!["description"])! as! String
+                
                 if(description == ""){
                     description = " "
                 }
                 let pathReference = self.storage.reference(withPath: imageName)
-                
-                pathReference.getData(maxSize: 3 * 1024 * 1024) { data, error in
-                    if let error = error {
-                        // Uh-oh, an error occurred!
-                        print("We got an error Faham")
-                        
-                    } else {
-                        // Data for "images/island.jpg" is returned
-                        currentImage = UIImage(data: data!)
-                        print("description: ", description)
-                        self.deck.addCard(newQuestion: name as! String, newAnswer: description, newImage: currentImage!, newUrl: id, latitude: latitude, longitude: longitude)
-                        DispatchQueue.main.async {
+                DispatchQueue.main.async {
+                    pathReference.getData(maxSize: 3 * 1024 * 1024) { data, error in
+                        if let error = error {
+                            // Uh-oh, an error occurred!
+                            //print("We got an error Faham")
+                            currentImage = UIImage(named: "spottedmarker.png")
+                            print("description: ", description)
+                            
+                            self.deck.addCard(newQuestion: name as! String, newAnswer: description, newImage: currentImage!, newUrl: id, latitude: latitude, longitude: longitude, imageID: imageName as! String)
                             self.tableView.reloadData()
+                            
+                        } else {
+                            // Data for "images/island.jpg" is returned
+                            currentImage = UIImage(data: data!)
+                            print("description: ", description)
+                            self.deck.addCard(newQuestion: name as! String, newAnswer: description, newImage: currentImage!, newUrl: id, latitude: latitude, longitude: longitude, imageID: imageName as! String)
+                            
+                            self.tableView.reloadData()
+                            
                         }
                     }
                 }
@@ -111,15 +149,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         }) { (error) in
             print(error.localizedDescription)
         }
-        
-    
-        
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-        latitude = locValue.latitude
-        longitude = locValue.longitude
+        refreshButton.isEnabled=true
     }
     
     
@@ -137,7 +167,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
             let mapViewController = segue.destination as? MapsViewController
             mapViewController?.initWithData(data: self.nearbyUniversity!)
         }
-  
+        
         
         switch(segue.identifier ?? "") {
         case "ShowDetail":
@@ -154,11 +184,8 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
             }
             let selectedCard = deck.getElementAtIndex(index: indexPath.row)
             CardViewController.card = selectedCard
-            if(card != nil){
-                CardViewController.card = self.card
-            }
             print("Here again too")
-        
+            
         case "mapShow":
             guard let mapViewController = segue.destination as? MapsViewController else {
                 fatalError("Unexpected destination: \(segue.destination)")
@@ -166,7 +193,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         case "addSpot":
             guard let addViewController = segue.destination as? AddViewController
                 else {
-                fatalError("Unexpected destination: \(segue.destination)")
+                    fatalError("Unexpected destination: \(segue.destination)")
             }
             
         default:
@@ -213,7 +240,6 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         // #warning Incomplete implementation, return the number of rows
         
         //return length of list here.
-        print("The array length is:")
         return self.deck.getLength()
     }
     
@@ -232,9 +258,9 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         cell.photoImageView.image = card.getImage()
         cell.descriptionLabel.text = card.getAnswer()
         cell.descriptionLabel.textColor = nearbyUniversity?.getBackColor()
-        cell.mainBackground.layer.shadowColor = UIColor.gray.cgColor
-        cell.mainBackground.layer.shadowColor = UIColor.gray.cgColor
-        
+        cell.mainBackground.layer.shadowColor = UIColor(red:1.00, green:0.84, blue:0.00, alpha:1.0).cgColor
+        cell.mainBackground.layer.shadowColor = UIColor(red:1.00, green:0.84, blue:0.00, alpha:1.0).cgColor
+        cell.descriptionLabel.layer.borderColor = UIColor.purple.cgColor
         cell.mainBackground.layer.shadowOffset = CGSize(width: 0, height: 1)
         cell.mainBackground.layer.shadowRadius = 4.0
         cell.mainBackground.layer.shadowOpacity = 1.0
@@ -242,7 +268,7 @@ class CardTableViewController: UITableViewController, URLSessionTaskDelegate, XM
         cell.mainBackground.layer.cornerRadius = 8
         
         cell.mainBackground.layer.shadowPath = UIBezierPath(roundedRect: cell.mainBackground.bounds, byRoundingCorners: .allCorners, cornerRadii: CGSize(width: 8, height: 8)).cgPath
-
+        
         return cell
     }
     

@@ -17,8 +17,9 @@ class Card: NSObject {
     private let url:String
     private let latitude:Double
     private let longitude:Double
+    private let imageID:String
     
-    init?(image: UIImage?, question: String, answer: String, url: String,latitude: Double, longitude: Double){
+    init?(image: UIImage?, question: String, answer: String, url: String,latitude: Double, longitude: Double, imageID: String){
         guard !question.isEmpty else{
             return nil
         }
@@ -26,13 +27,14 @@ class Card: NSObject {
         guard !answer.isEmpty else{
             return nil
         }
-        
+        self.imageID = imageID
         self.image = image
         self.question = question
         self.answer = answer
         self.url = url
         self.latitude = latitude
         self.longitude = longitude
+        
     }
 
     func getImage()->UIImage{
@@ -56,6 +58,10 @@ class Card: NSObject {
     func getLongitude()->Double{
         return longitude
     }
+    
+    func getImageID()->String{
+        return imageID
+    }
     /*
     func encode(with aCoder: NSCoder){
         aCoder.encode(image, forKey: PropertyKey.image)
@@ -78,8 +84,9 @@ class Card: NSObject {
 }
 
 struct PropertyKey{
-    	static let question = "question"
+    static let question = "question"
     static let image = "image"
     static let answer = "answer"
     static let url = "url"
+    static let imageID = "imageID"
 }

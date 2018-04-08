@@ -70,9 +70,14 @@ class Deck: NSObject, NSCoding{
         return currentCard!
     }
     
-    func addCard(newQuestion: String, newAnswer: String, newImage: UIImage, newUrl: String, latitude: Double, longitude: Double){
-        let newCard = Card(image:newImage,question:newQuestion,answer: newAnswer, url: newUrl, latitude: latitude,longitude: longitude )
-        cards.append(newCard!)
+    func addCard(newQuestion: String, newAnswer: String, newImage: UIImage, newUrl: String, latitude: Double, longitude: Double, imageID: String){
+        let newCard = Card(image:newImage,question:newQuestion,answer: newAnswer, url: newUrl, latitude: latitude,longitude: longitude, imageID: imageID)
+        let results = cards.filter { $0.getUrl() == newUrl }
+        
+        if results.isEmpty == true{
+            print("Yea its not there")
+            cards.insert(newCard!, at: 0)
+        }
         maxCount+=1
     }
     
@@ -95,6 +100,10 @@ class Deck: NSObject, NSCoding{
         return index
     }
     
+    func emptyDeck(){
+        cards.removeAll()
+    }
+    
     
     required convenience init?(coder decoder: NSCoder){
         self.init()
@@ -105,11 +114,14 @@ class Deck: NSObject, NSCoding{
         time = (decoder.decodeObject(forKey: timeKey) as? String)
     }
     
+    
+    
+    
     func encode(with acoder: NSCoder){
         acoder.encode(cards,forKey:deckKey)
         acoder.encode(current,forKey: indexKey)
         acoder.encode(time,forKey: timeKey)
-
+        
     }
     
 }

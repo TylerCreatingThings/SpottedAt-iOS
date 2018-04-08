@@ -9,6 +9,7 @@
 import UIKit
 import GoogleMaps
 import FirebaseDatabase
+import FirebaseStorage
 import Foundation
 import MapKit
 import CoreLocation
@@ -24,8 +25,8 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
     var spots = [Card]()
     var nearbySpots = [Card]()
     var markers = [GMSMarker]()
-    var latitude:Double = 43.4723530
-    var longitude:Double = -80.5263400
+    var latitude:Double = 43.5321
+    var longitude:Double = -80.2269
     let locationManager = CLLocationManager()
     var ref: DatabaseReference!
     var dataStore = NSData();
@@ -56,48 +57,59 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
     @IBOutlet var mapsViewObject: GMSMapView!
     
     
+    @IBOutlet weak var mapToolBar: UIToolbar!
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        let storage = Storage.storage()
+
         custom_kilometers = calculateKilometerDistance(kilometers: 5)
         mapsViewObject.delegate = self
         
-        /*
-         // Creates a marker in the center of the map.
-         let marker = GMSMarker()
-         marker.position = CLLocationCoordinate2D(latitude: -33.86, longitude: 151.20)
-         marker.title = "Sydney"
-         marker.snippet = "Australia"
-         marker.map = mapsViewObject
-         */
-        startReceivingLocationChanges()
+        self.locationManager.requestWhenInUseAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.startUpdatingLocation()
+        }
+        
+        
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         
         
         ref = Database.database().reference()
         
-        self.ref.child("Users").setValue(["username": "FahamKhan Lets go"])
         ref.child("POSTS").observeSingleEvent(of: .value, with: { (snapshot) in
             // Get user value
             let value = snapshot.value as? NSDictionary
             //var tests = value?.allValues[0] as? NSDictionary
             //print("username is:",tests!["description"])
             var currentImage: UIImage?
-            currentImage = UIImage(named:"fahamk.png");
+            currentImage = UIImage(named:"spottedmarker");
+            var counter = 0
             for name in (value?.allValues)!{
                 let dictionary = name as? NSDictionary
                 let name = (dictionary!["title"])!
+                var description = (dictionary!["description"])! as! String
                 let lat = (dictionary!["latitude"])!
                 let long = (dictionary!["longitude"])!
-             
+                let date = (dictionary!["date"])!
+                let imageName = (dictionary!["image"])! as! String
+                let id = (value?.allKeys[counter])! as! String
+                
+                
+                if(description == ""){
+                    description = " "
+                }
                 
                 
                 print("Value is: ", (dictionary!["description"])!)
-                self.spots.append(Card(image: currentImage!, question: name as! String, answer: "test", url: "test", latitude: lat as! Double, longitude: long as! Double)!)
+                self.spots.append(Card(image: currentImage!, question: name as! String, answer: description, url: id, latitude: lat as! Double, longitude: long as! Double, imageID: imageName as! String)!)
                 
-                
+                counter = counter + 1
             }
+            
             if(self.mapsViewObject != nil){
                 self.getNearbySpots()
             }
@@ -109,8 +121,6 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
         ref.child("UNIVERSITIES").observeSingleEvent(of: .value, with: { (snapshot) in
             // Get user value
             let value = snapshot.value as? NSDictionary
-            //var tests = value?.allValues[0] as? NSDictionary
-            //print("username is:",tests!["description"])
             
             for name in (value)!{
                 
@@ -131,18 +141,12 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
         }) { (error) in
             print(error.localizedDescription)
         }
-        //schools.append(University)
         
        
         
         // Do any additional setup after loading the view.
     }
    
-    /*override func loadView() {
-        let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: 6.0)
-        mapsViewObject.camera = camera
-        
-    }*/
     func initWithData(data: ColoredUniversity){ self.nearestUni = data
     }
     
@@ -206,12 +210,9 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
                 let vc = CardViewController() //your view controller
                 card = place
                 self.performSegue(withIdentifier: "ShowEventDetails", sender: self)
-               // let selectedCardCell = sender as? CardTableViewCell
-               // let indexPath = tableView.indexPath(for: selectedCardCell)
-               // let selectedCard = deck.getElementAtIndex(index: indexPath.row)
-               //CardViewController.card = place
-                
+                break
             }
+            
         }
         return true
     }
@@ -240,24 +241,6 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
 
     }
     
-    
-    func startReceivingLocationChanges() {
-        let authorizationStatus = CLLocationManager.authorizationStatus()
-        if authorizationStatus != .authorizedWhenInUse && authorizationStatus != .authorizedAlways {
-            // User has not authorized access to location information.
-            return
-        }
-        // Do not start services that aren't available.
-        if !CLLocationManager.locationServicesEnabled() {
-            // Location services is not available.
-            return
-        }
-        // Configure and start the service.
-        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-        locationManager.distanceFilter = 100.0  // In meters.
-        locationManager.delegate = self
-        locationManager.startUpdatingLocation()
-    }
     
     
     func getNearbySpots(){
@@ -312,12 +295,18 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
         
         universityTitle.text = "Spotted @ " + nearestUni!.getName()
         universityTitle.textColor = nearestUni!.getMainColor()
+        universityTitle.backgroundColor = nearestUni?.getBackColor()
+        universityTitle.tintColor = nearestUni?.getBackColor()
+        mapToolBar.tintColor = nearestUni?.getMainColor()
+        mapToolBar.backgroundColor = nearestUni?.getMainColor()
+        mapToolBar.barTintColor = nearestUni?.getMainColor()
         listButton.tintColor = nearestUni!.getBackColor()
-        centerButton.tintColor = nearestUni!.getCompositeColor()
-        
+        centerButton.tintColor = nearestUni!.getBackColor()
         let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: 16.0)
         mapsViewObject.camera = camera
     }
+    
+
     
     @IBAction func centerMap(_ sender: Any) {
                 let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: 16.0)
@@ -356,7 +345,7 @@ class MapsViewController: UIViewController,CLLocationManagerDelegate, XMLParserD
                 fatalError("Unexpected destination: \(segue.destination)")
             }
             
-            
+            print("The id of card is: ",self.card?.getUrl())
             CardViewController.card = self.card
             CardViewController.initWithData(data: nearestUni!)
         }

@@ -16,13 +16,14 @@ import Firebase
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    var nearbyUniversity: ColoredUniversity?
+    
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         FirebaseApp.configure()
         GMSServices.provideAPIKey("AIzaSyDysNNHa6dQuPOe0Ju8wqwuxqV77rqh15o")
-        
+        UINavigationBar.appearance().barTintColor = UIColor(red:1.00, green:0.84, blue:0.00, alpha:1.0)
         return true
     }
 
